@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USD to BTC</title>
+    <link rel="icon" type="image/png" href="/-/favicon-files/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/-/favicon-files/favicon.svg">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/-/favicon-files/apple-touch-icon.png">
+    <link rel="manifest" href="/-/favicon-files/site.webmanifest">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .content { width: 100%; max-width: 360px; padding: 0 1rem; }
+        h1 { font-size: 32px; margin-bottom: 24px; text-align: center; }
+        .converter { display: flex; flex-direction: column; gap: 10px; width: 100%; padding-bottom: 50px; }
+        .input-container { position: relative; width: 100%; }
+        input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 10px;
+            font-size: 20px;
+            padding: 14px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .usd-container input, .btc-container input { padding-left: 28px; }
+        .sats-container input { padding: 14px 54px 14px 28px; }
+        input:hover, input:focus { border-color: #999; }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .usd-container::before { content: '$'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+        .btc-container::before { content: '₿'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+        .sats-container::before { content: '⚡︎'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+        .sats-container::after { content: 'sats'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; opacity: 0; transition: opacity .2s; }
+        .sats-container.show-label::after { opacity: 1; }
+        .back-link {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 0;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+            text-decoration: none;
+        }
+        .back-link:hover { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>USD to BTC</h1>
+        <div class="converter">
+            <div class="input-container usd-container">
+                <input type="tel" inputmode="decimal" id="usd" placeholder="USD">
+            </div>
+            <div class="input-container btc-container">
+                <input type="tel" inputmode="decimal" id="btc" placeholder="BTC">
+            </div>
+            <div class="input-container sats-container">
+                <input type="tel" inputmode="decimal" id="sats" placeholder="SATS">
+            </div>
+        </div>
+    </div>
+    <a href="https://pricetools.space" class="back-link">Back</a>
+    <script>
+        const BTC_TO_SATS = 100000000;
+        let rate = 0.00001;
+
+        const usd = document.getElementById('usd');
+        const btc = document.getElementById('btc');
+        const sats = document.getElementById('sats');
+        const satsContainer = sats.parentElement;
+
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.codetabs.com/v1/proxy/?quest=https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+                if (res.ok) {
+                    const data = await res.json();
+                    const price = parseFloat(data.price);
+                    if (price > 0) {
+                        rate = 1 / price;
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const csvRes = await fetch('/-/data/bitcoin-data.csv');
+                if (csvRes.ok) {
+                    const text = await csvRes.text();
+                    const latestPrice = parseFloat(text.trim().split('\n')[0].split(',')[1]);
+                    if (latestPrice > 0) rate = 1 / latestPrice;
+                }
+            } catch (e) {
+                rate = 0.00001;
+            }
+        }
+
+        function formatNumber(n, decimals = 8) {
+            return parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: decimals });
+        }
+
+        function restrictInput(el, maxDecimals) {
+            el.addEventListener('input', () => {
+                let value = el.value.replace(/[^0-9.]/g, '');
+                if (value.includes('.')) {
+                    const [int, dec] = value.split('.');
+                    if (dec && dec.length > maxDecimals) value = int + '.' + dec.slice(0, maxDecimals);
+                }
+                const [int, dec] = value.split('.');
+                el.value = int ? Number(int).toLocaleString() + (dec !== undefined ? '.' + dec : '') : dec === undefined ? '' : '0.' + dec;
+            });
+        }
+
+        restrictInput(usd, 2);
+        restrictInput(btc, 8);
+        restrictInput(sats, 0);
+
+        function clearAll() {
+            usd.value = '';
+            btc.value = '';
+            sats.value = '';
+            satsContainer.classList.remove('show-label');
+        }
+
+        function update() {
+            const active = document.activeElement;
+            if (!active || ![usd, btc, sats].includes(active)) return;
+            const cleaned = active.value.replace(/,/g, '');
+            if (cleaned === '' || cleaned === '0' || cleaned === '0.') {
+                clearAll();
+                return;
+            }
+            const val = parseFloat(cleaned) || 0;
+            if (val === 0) {
+                clearAll();
+                return;
+            }
+            let b;
+            if (active === usd) {
+                b = val * rate;
+                btc.value = b.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+                sats.value = Math.floor(b * BTC_TO_SATS).toLocaleString();
+            }
+            else if (active === btc) {
+                b = val;
+                usd.value = formatNumber(val / rate, 2);
+                sats.value = Math.floor(val * BTC_TO_SATS).toLocaleString();
+            }
+            else if (active === sats) {
+                b = Number(BigInt(cleaned)) / BTC_TO_SATS;
+                usd.value = formatNumber(b / rate, 2);
+                btc.value = b.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+            }
+            satsContainer.classList.add('show-label');
+        }
+
+        [usd, btc, sats].forEach(el => el.addEventListener('input', () => setTimeout(update, 0)));
+
+        fetchPrice();
+        setInterval(fetchPrice, 30000);
+    </script>
+</body>
+</html>
