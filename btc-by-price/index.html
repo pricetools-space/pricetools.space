@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin By Price</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+        input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .input-container input { padding-left: 32px; }
+        .btc-price input, .usd-container input { padding-right: 0px; }
+        .sats-container input { padding-right: 72px; }
+        input:hover, input:focus { background: #111; outline: none; }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .btc-price::before,
+        .usd-container::before {
+            content: '$';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+        .btc-amount::before {
+            content: '₿';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+        .sats-container::before, .sats-cost::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 51%;
+            transform: translateY(-50%);
+            width: 1.2em;
+            height: 1.2em;
+            background: url('/-/images/sats.svg') center/contain no-repeat;
+            pointer-events: none;
+        }
+        .btc-price::after {
+            content: 'per bitcoin';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #666;
+            opacity: 1;
+            pointer-events: none;
+        }
+        .btc-price input {
+            padding-right: 118px;
+        }
+        .sats-container::after {
+            content: 'sats';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .2s;
+        }
+        .sats-container.filled::after {
+            opacity: 1;
+        }
+        .menu {
+            font-size: 3rem;
+            font-weight: 100;
+            color: #666;
+            margin-block-end: 2vh;
+            text-decoration: none;
+        }
+        .menu:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="input-container btc-price">
+                <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*$" id="btcPrice" placeholder="">
+            </div>
+            <div class="input-container usd-container">
+                <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*$" id="usd" placeholder="USD">
+            </div>
+            <div class="input-container btc-amount">
+                <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*$" id="btcAmount" placeholder="BTC">
+            </div>
+            <div class="input-container sats-container">
+                <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*$" id="sats" placeholder="SATS">
+            </div>
+        </div>
+    </div>
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+    <script>
+        let currentPrice = 0;
+        let lastModified = null;
+        async function loadPrice() {
+            try {
+                const r = await fetch('/-/data/bitcoin-current-data.csv');
+                const t = await r.text();
+                const line = t.split('\n').find(l => l.trim());
+                if (line) {
+                    const p = parseFloat(line.split(',')[1]);
+                    if (p > 0) {
+                        currentPrice = p;
+                        const el = document.getElementById('btcPrice');
+                        el.placeholder = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(p);
+                        el.parentElement.classList.add('filled');
+                    }
+                }
+            } catch (e) {}
+        }
+        function restrict(el, maxDec = 8) {
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9.]/g, '');
+                if (v.includes('.')) v = v.split('.').map((p, i) => i ? p.slice(0, maxDec) : p).join('.');
+                const [i, d] = v.split('.');
+                const f = i ? Number(i).toLocaleString('en-US') : '';
+                el.value = d !== undefined ? `${f}.${d}` : f;
+            });
+        }
+        function clean(v) {
+            return parseFloat(v.replace(/,/g, '')) || 0;
+        }
+        function clearAmounts() {
+            document.getElementById('usd').value = '';
+            document.getElementById('btcAmount').value = '';
+            document.getElementById('sats').value = '';
+            document.querySelectorAll('.usd-container, .btc-amount, .sats-container').forEach(el => el.classList.remove('filled'));
+        }
+        function update(changedId) {
+            if (changedId !== 'btcPrice') lastModified = changedId;
+            const priceEl = document.getElementById('btcPrice');
+            const usdEl = document.getElementById('usd');
+            const btcEl = document.getElementById('btcAmount');
+            const satsEl = document.getElementById('sats');
+            const satsContainer = document.querySelector('.sats-container');
+            const price = clean(priceEl.value) || currentPrice;
+            let usd = clean(usdEl.value);
+            let btc = clean(btcEl.value);
+            let sats = clean(satsEl.value);
+            priceEl.parentElement.classList.toggle('filled', !!priceEl.value);
+            satsContainer.classList.toggle('filled', !!satsEl.value);
+            if (price <= 0) {
+                clearAmounts();
+                return;
+            }
+            const isClearing = (changedId !== 'btcPrice') &&
+                ((changedId === 'usd' && usd === 0 && !usdEl.value) ||
+                 (changedId === 'btcAmount' && btc === 0 && !btcEl.value) ||
+                 (changedId === 'sats' && sats === 0 && !satsEl.value));
+            if (isClearing) {
+                clearAmounts();
+                lastModified = null;
+                return;
+            }
+            if (changedId === 'btcPrice' && lastModified) {
+                if (lastModified === 'usd' && usd > 0) {
+                    btc = usd / price;
+                    sats = Math.floor(btc * 1e8);
+                    btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                    satsEl.value = sats.toLocaleString('en-US');
+                    satsContainer.classList.toggle('filled', !!satsEl.value);
+                } else if (lastModified === 'btcAmount' && btc > 0) {
+                    usd = price * btc;
+                    sats = Math.floor(btc * 1e8);
+                    if (usd < 0.01) {
+                        usdEl.value = '0';
+                    } else {
+                        const formatted = usd.toLocaleString('en-US', { 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 2 
+                        });
+                        usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
+                    }
+                    satsEl.value = sats.toLocaleString('en-US');
+                    satsContainer.classList.toggle('filled', !!satsEl.value);
+                } else if (lastModified === 'sats' && sats > 0) {
+                    btc = sats / 1e8;
+                    usd = price * btc;
+                    btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                    if (usd < 0.01) {
+                        usdEl.value = '0';
+                    } else {
+                        const formatted = usd.toLocaleString('en-US', { 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 2 
+                        });
+                        usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
+                    }
+                    satsContainer.classList.toggle('filled', !!satsEl.value);
+                }
+            } else if (changedId === 'usd' && usd > 0) {
+                btc = usd / price;
+                sats = Math.floor(btc * 1e8);
+                btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                satsEl.value = sats.toLocaleString('en-US');
+                satsContainer.classList.toggle('filled', !!satsEl.value);
+            } else if (changedId === 'btcAmount' && btc > 0) {
+                usd = price * btc;
+                sats = Math.floor(btc * 1e8);
+                if (usd < 0.01) {
+                    usdEl.value = '0';
+                } else {
+                    const formatted = usd.toLocaleString('en-US', { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 2 
+                    });
+                    usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
+                }
+                satsEl.value = sats.toLocaleString('en-US');
+                satsContainer.classList.toggle('filled', !!satsEl.value);
+            } else if (changedId === 'sats' && sats > 0) {
+                btc = sats / 1e8;
+                usd = price * btc;
+                btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                if (usd < 0.01) {
+                    usdEl.value = '0';
+                } else {
+                    const formatted = usd.toLocaleString('en-US', { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 2 
+                    });
+                    usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
+                }
+                satsContainer.classList.toggle('filled', !!satsEl.value);
+            }
+        }
+        const inputs = [
+            { el: document.getElementById('btcPrice'), dec: 2 },
+            { el: document.getElementById('usd'), dec: 2 },
+            { el: document.getElementById('btcAmount'), dec: 8 },
+            { el: document.getElementById('sats'), dec: 0 }
+        ];
+        inputs.forEach(({ el, dec }) => {
+            restrict(el, dec);
+            el.addEventListener('input', () => update(el.id));
+        });
+        document.getElementById('sats').addEventListener('input', () => {
+            document.querySelector('.sats-container').classList.toggle('filled', !!document.getElementById('sats').value);
+        });
+        loadPrice().then(() => {
+            update('btcPrice');
+        });
+    </script>
+</body>
+</html>

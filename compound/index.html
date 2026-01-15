@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compound Growth</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin: auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+        input, select {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input { padding-left: 32px; }
+        select {
+            padding: 20px 12px;
+            text-align: center;
+            text-align-last: center;
+        }
+        .rate-container input { padding-right: 211px; }
+        .years-container input { padding-right: 84px; }
+        input:hover, input:focus, select:hover, select:focus {
+            background: #111;
+            outline: none;
+        }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .prefix, .suffix {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+        .prefix {
+            left: 12px;
+            opacity: 0.5;
+            color: #fff;
+        }
+        .suffix {
+            right: 18px;
+            opacity: 0.5;
+            color: #fff;
+            transition: opacity .2s;
+        }
+        .rate-container .suffix { opacity: 0.5; }
+        .years-container .suffix { opacity: 0; }
+        .years-container.filled .suffix { opacity: 0.5; }
+        .years-container.filled::placeholder { color: transparent; }
+        #rate::placeholder { color: #666; opacity: 1; }
+        #result {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            text-align: center;
+            align-self: center;
+        }
+        .menu {
+            font-size: 3rem;
+            font-weight: 100;
+            color: #666;
+            margin-block-end: 2vh;
+            text-decoration: none;
+            transition: color 0.6s ease, text-shadow 0.6s ease;
+        }
+        .menu:hover {
+            color: #fff;
+            text-shadow: 0 0 25px rgba(255,255,255,0.8);
+        }
+        .row { display: flex; gap: 10px; }
+        .row > .input-container { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="row">
+                <div class="input-container">
+                    <span class="prefix">$</span>
+                    <input type="tel" id="add" placeholder="Amount">
+                </div>
+                <div class="input-container">
+                    <select id="freq">
+                        <option value="daily">daily</option>
+                        <option value="weekly" selected>weekly</option>
+                        <option value="monthly">monthly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-container rate-container">
+                <input type="tel" id="rate" value="60" placeholder="0">
+                <span class="suffix">annual returns (%)</span>
+            </div>
+
+            <div class="input-container years-container">
+                <input type="number" id="years" placeholder="Years" min="0">
+                <span class="suffix" id="years-suffix">years</span>
+            </div>
+
+            <input type="text" id="result" placeholder="Future Value" readonly>
+        </div>
+    </div>
+
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+
+    <script>
+        const addIn        = document.getElementById('add');
+        const rateIn       = document.getElementById('rate');
+        const yearsIn      = document.getElementById('years');
+        const freqSel      = document.getElementById('freq');
+        const resultIn     = document.getElementById('result');
+        const yearsContainer = document.querySelector('.years-container');
+        const yearsSuffix  = document.getElementById('years-suffix');
+
+        const suffixes = [
+            { t: 1e303, s: "centillion" },
+            { t: 1e300, s: "novemnonagintillion" },
+            { t: 1e297, s: "octononagintillion" },
+            { t: 1e294, s: "septennonagintillion" },
+            { t: 1e291, s: "sexnonagintillion" },
+            { t: 1e288, s: "quinnonagintillion" },
+            { t: 1e285, s: "quattuornonagintillion" },
+            { t: 1e282, s: "trenonagintillion" },
+            { t: 1e279, s: "duononagintillion" },
+            { t: 1e276, s: "unnonagintillion" },
+            { t: 1e273, s: "nonagintillion" },
+            { t: 1e270, s: "novenoctogintillion" },
+            { t: 1e267, s: "octooctogintillion" },
+            { t: 1e264, s: "septenoctogintillion" },
+            { t: 1e261, s: "sexoctogintillion" },
+            { t: 1e258, s: "quinoctogintillion" },
+            { t: 1e255, s: "quattuoroctogintillion" },
+            { t: 1e252, s: "treoctogintillion" },
+            { t: 1e249, s: "duooctogintillion" },
+            { t: 1e246, s: "unoctogintillion" },
+            { t: 1e243, s: "octogintillion" },
+            { t: 1e240, s: "novenseptuagintillion" },
+            { t: 1e237, s: "octoseptuagintillion" },
+            { t: 1e234, s: "septenseptuagintillion" },
+            { t: 1e231, s: "sexseptuagintillion" },
+            { t: 1e228, s: "quinseptuagintillion" },
+            { t: 1e225, s: "quattuorseptuagintillion" },
+            { t: 1e222, s: "treseptuagintillion" },
+            { t: 1e219, s: "duoseptuagintillion" },
+            { t: 1e216, s: "unseptuagintillion" },
+            { t: 1e213, s: "septuagintillion" },
+            { t: 1e210, s: "novensexagintillion" },
+            { t: 1e207, s: "octosexagintillion" },
+            { t: 1e204, s: "septensexagintillion" },
+            { t: 1e201, s: "sexsexagintillion" },
+            { t: 1e198, s: "quinsexagintillion" },
+            { t: 1e195, s: "quattuorsexagintillion" },
+            { t: 1e192, s: "tresexagintillion" },
+            { t: 1e189, s: "duosexagintillion" },
+            { t: 1e186, s: "unsexagintillion" },
+            { t: 1e183, s: "sexagintillion" },
+            { t: 1e180, s: "novemquinquagintillion" },
+            { t: 1e177, s: "octoquinquagintillion" },
+            { t: 1e174, s: "septenquinquagintillion" },
+            { t: 1e171, s: "sexquinquagintillion" },
+            { t: 1e168, s: "quinquinquagintillion" },
+            { t: 1e165, s: "quattuorquinquagintillion" },
+            { t: 1e162, s: "trequinquagintillion" },
+            { t: 1e159, s: "duoquinquagintillion" },
+            { t: 1e156, s: "unquinquagintillion" },
+            { t: 1e153, s: "quinquagintillion" },
+            { t: 1e150, s: "novemquadragintillion" },
+            { t: 1e147, s: "octoquadragintillion" },
+            { t: 1e144, s: "septenquadragintillion" },
+            { t: 1e141, s: "sexquadragintillion" },
+            { t: 1e138, s: "quinquadragintillion" },
+            { t: 1e135, s: "quattuorquadragintillion" },
+            { t: 1e132, s: "trequadragintillion" },
+            { t: 1e129, s: "duoquadragintillion" },
+            { t: 1e126, s: "unquadragintillion" },
+            { t: 1e123, s: "quadragintillion" },
+            { t: 1e120, s: "novemtrigintillion" },
+            { t: 1e117, s: "octotrigintillion" },
+            { t: 1e114, s: "septentrigintillion" },
+            { t: 1e111, s: "sextrigintillion" },
+            { t: 1e108, s: "quintrigintillion" },
+            { t: 1e105, s: "quattuortrigintillion" },
+            { t: 1e102, s: "tretrigintillion" },
+            { t: 1e99,  s: "duotrigintillion" },
+            { t: 1e96,  s: "untrigintillion" },
+            { t: 1e93,  s: "trigintillion" },
+            { t: 1e90,  s: "novemvigintillion" },
+            { t: 1e87,  s: "octovigintillion" },
+            { t: 1e84,  s: "septenvigintillion" },
+            { t: 1e81,  s: "sexvigintillion" },
+            { t: 1e78,  s: "quinvigintillion" },
+            { t: 1e75,  s: "quattuorvigintillion" },
+            { t: 1e72,  s: "trevigintillion" },
+            { t: 1e69,  s: "duovigintillion" },
+            { t: 1e66,  s: "unvigintillion" },
+            { t: 1e63,  s: "vigintillion" },
+            { t: 1e60,  s: "novemdecillion" },
+            { t: 1e57,  s: "octodecillion" },
+            { t: 1e54,  s: "septendecillion" },
+            { t: 1e51,  s: "sexdecillion" },
+            { t: 1e48,  s: "quindecillion" },
+            { t: 1e45,  s: "quattuordecillion" },
+            { t: 1e42,  s: "tredecillion" },
+            { t: 1e39,  s: "duodecillion" },
+            { t: 1e36,  s: "undecillion" },
+            { t: 1e33,  s: "decillion" },
+            { t: 1e30,  s: "nonillion" },
+            { t: 1e27,  s: "octillion" },
+            { t: 1e24,  s: "septillion" },
+            { t: 1e21,  s: "sextillion" },
+            { t: 1e18,  s: "quintillion" },
+            { t: 1e15,  s: "quadrillion" },
+            { t: 1e12,  s: "trillion" },
+            { t: 1e9,   s: "billion" }
+        ];
+
+        function fmtBig(n) {
+            if (n < 1e12) {
+                return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+            if (n >= 1e303) {
+                return '> $1 centillion';
+            }
+            for (const o of suffixes) {
+                if (n >= o.t) {
+                    const val = n / o.t;
+                    const coeff = Number(val.toFixed(1));
+                    return (coeff % 1 === 0 ? coeff : val.toFixed(1)) + ' ' + o.s;
+                }
+            }
+            return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        }
+
+        function getRate() {
+            return (parseFloat(rateIn.value.replace(/,/g, '')) || 0) / 100;
+        }
+
+        function calculate() {
+            const add = parseFloat(addIn.value.replace(/,/g, '')) || 0;
+            const yearsStr = yearsIn.value.trim();
+            const hasYears = yearsStr !== '';
+            const years = hasYears ? parseInt(yearsStr) : 0;
+            const annualRate = getRate();
+
+            yearsContainer.classList.toggle('filled', hasYears);
+            if (hasYears) {
+                yearsSuffix.textContent = years === 1 ? 'year' : 'years';
+            }
+
+            if (add === 0 || !hasYears) {
+                resultIn.value = '';
+                return;
+            }
+
+            const periodsPerYear = freqSel.value === 'daily' ? 365 :
+                                  freqSel.value === 'weekly' ? 52 : 12;
+            const totalPeriods = years * periodsPerYear;
+            const periodicRate = annualRate / periodsPerYear;
+
+            let futureAdd;
+            if (annualRate === 0) {
+                futureAdd = add * totalPeriods;
+            } else {
+                futureAdd = add * ((Math.pow(1 + periodicRate, totalPeriods) - 1) / periodicRate);
+            }
+            const rounded = Math.round(futureAdd);
+            const formatted = fmtBig(rounded);
+            resultIn.value = formatted.startsWith('>') ? formatted : '$' + formatted;
+        }
+
+        function formatInput(el) {
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9]/g, '');
+                el.value = v ? Number(v).toLocaleString() : '';
+                calculate();
+            });
+        }
+
+        formatInput(addIn);
+        formatInput(rateIn);
+
+        yearsIn.addEventListener('input', () => {
+            yearsIn.value = yearsIn.value.replace(/[^0-9]/g, '');
+            calculate();
+        });
+
+        freqSel.addEventListener('change', calculate);
+
+        calculate();
+    </script>
+</body>
+</html>

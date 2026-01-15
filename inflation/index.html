@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inflation Calculator</title>
+    <meta name="description" content="Calculate the dollar purchasing power over time with a 7% annual inflation rate. Based on expansion of the m2 money supply.">
+    <meta name="keywords" content="dollar debasement calculator">
+    <meta property="og:title" content="Dollar Debasement Calculator">
+    <meta property="og:description" content="See how much past purchasing power is today at a 7% annual rate of inflation.">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 24px;
+        }
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .date-container {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+        .date-container select {
+            flex: 1;
+            text-align: center;
+            text-align-last: center;
+        }
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+        select,
+        input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .then-usd-container input,
+        .now-usd-container input {
+            padding-left: 32px;
+            padding-right: 84px;
+        }
+        select:hover, select:focus,
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
+        }
+        input::-webkit-inner-spin-button,
+        input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+        .then-usd-container::before,
+        .now-usd-container::before {
+            content: '$';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+        }
+        .then-usd-container::after,
+        .now-usd-container::after {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .2s;
+            pointer-events: none;
+        }
+        .then-usd-container::after { content: 'Then'; }
+        .now-usd-container::after { content: 'Now'; }
+        .then-usd-container.filled::after,
+        .now-usd-container.filled::after { opacity: 1; }
+        select:invalid { color: #666; }
+        .menu {
+            font-size: 3rem;
+            font-weight: 100;
+            color: #666;
+            margin-block-end: 2vh;
+            text-decoration: none;
+            transition: color 0.5s ease;
+        }
+        .menu:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="date-container">
+                <select id="year" required>
+                    <option value="" disabled selected hidden>Select A Year</option>
+                </select>
+            </div>
+            <div class="input-container then-usd-container">
+                <input type="tel" inputmode="decimal" id="then-usd" placeholder="Then">
+            </div>
+            <div class="input-container now-usd-container">
+                <input type="tel" inputmode="decimal" id="now-usd" placeholder="Now">
+            </div>
+        </div>
+    </div>
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+    <script>
+        const growthRate = 0.068;
+        let lastInput = null;
+        function getMultiplier(y) {
+            const currentYear = new Date().getFullYear();
+            const years = currentYear - y;
+            return Math.pow(1 + growthRate, years);
+        }
+        function populateYearSelector() {
+            const yearEl = document.getElementById('year');
+            const thisYear = new Date().getFullYear();
+            for (let y = 1971; y <= thisYear; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                yearEl.appendChild(opt);
+            }
+        }
+        function restrictInput(el, maxDecimals = 2) {
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9.]/g, '');
+                if (v.includes('.') && maxDecimals > 0) {
+                    const [int, dec] = v.split('.');
+                    if (dec && dec.length > maxDecimals) v = int + '.' + dec.slice(0, maxDecimals);
+                } else if (maxDecimals === 0) {
+                    v = v.replace(/\./g, '');
+                }
+                const [intPart, decPart] = v.split('.');
+                const formatted = intPart ? Number(intPart).toLocaleString('en-US') : '';
+                el.value = decPart !== undefined ? `${formatted}.${decPart}` : formatted;
+            });
+        }
+        const thenIn = document.getElementById('then-usd');
+        const nowIn = document.getElementById('now-usd');
+        const thenContainer = thenIn.parentElement;
+        const nowContainer = nowIn.parentElement;
+        restrictInput(thenIn, 2);
+        restrictInput(nowIn, 2);
+        thenIn.addEventListener('input', () => {
+            thenContainer.classList.toggle('filled', thenIn.value.length > 0);
+        });
+        nowIn.addEventListener('input', () => {
+            nowContainer.classList.toggle('filled', nowIn.value.length > 0);
+        });
+        async function updateConversions() {
+            const y = parseInt(document.getElementById('year').value);
+            if (isNaN(y)) {
+                nowIn.value = '';
+                thenIn.value = '';
+                thenContainer.classList.remove('filled');
+                nowContainer.classList.remove('filled');
+                return;
+            }
+            const multiplier = getMultiplier(y);
+            const active = document.activeElement;
+            const isDateChange = active && active.id === 'year';
+            const thenVal = parseFloat(thenIn.value.replace(/,/g, '')) || 0;
+            const nowVal = parseFloat(nowIn.value.replace(/,/g, '')) || 0;
+            if (isDateChange && lastInput) {
+                if (lastInput === 'then' && thenVal > 0) {
+                    const now = thenVal * multiplier;
+                    nowIn.value = now.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    nowContainer.classList.add('filled');
+                } else if (lastInput === 'now' && nowVal > 0) {
+                    const then = nowVal / multiplier;
+                    thenIn.value = then.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    thenContainer.classList.add('filled');
+                }
+                return;
+            }
+            if (active === thenIn || !active.closest('.input-container')) {
+                if (thenVal > 0) {
+                    const now = thenVal * multiplier;
+                    nowIn.value = now.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    nowContainer.classList.add('filled');
+                } else {
+                    nowIn.value = '';
+                    nowContainer.classList.remove('filled');
+                }
+            } else if (active === nowIn) {
+                if (nowVal > 0) {
+                    const then = nowVal / multiplier;
+                    thenIn.value = then.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    thenContainer.classList.add('filled');
+                } else {
+                    thenIn.value = '';
+                    thenContainer.classList.remove('filled');
+                }
+            }
+        }
+        thenIn.addEventListener('input', () => { lastInput = 'then'; setTimeout(updateConversions, 0); });
+        nowIn.addEventListener('input', () => { lastInput = 'now'; setTimeout(updateConversions, 0); });
+        document.getElementById('year').addEventListener('change', () => setTimeout(updateConversions, 0));
+        populateYearSelector();
+    </script>
+</body>
+</html>

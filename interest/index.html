@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interest Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        .converter { display: flex; flex-direction: column; gap: 10px; }
+        .input-container { position: relative; }
+        input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 20px 20px 32px;
+        }
+        input:hover, input:focus { background: #111; outline: none; }
+        .prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+        .suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        #period {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px;
+            text-align: center;
+            text-align-last: center;
+            appearance: none;
+            height: 100%;
+        }
+        #period:hover, #period:focus { background-color: #111; outline: none; }
+        #interest::placeholder { color: #666; }
+        .menu {
+            font-size: 3rem;
+            font-weight: 100;
+            color: #666;
+            margin-block-end: 2vh;
+            text-decoration: none;
+            transition: color 0.5s ease;
+        }
+        .menu:hover { color: #fff; }
+        select option { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="input-container">
+                <span class="prefix">$</span>
+                <input type="tel" inputmode="decimal" id="amount" placeholder="Amount">
+            </div>
+            <div class="top-row">
+                <div class="input-container">
+                    <input type="tel" inputmode="decimal" id="rate" placeholder="APR">
+                    <span class="suffix">%</span>
+                </div>
+                <div>
+                    <select id="period">
+                        <option value="daily">daily</option>
+                        <option value="weekly">weekly</option>
+                        <option value="monthly" selected>monthly</option>
+                        <option value="annually">annually</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-container">
+                <span class="prefix">$</span>
+                <input type="text" id="interest" placeholder="Interest" readonly>
+            </div>
+        </div>
+    </div>
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+    <script>
+        const amountIn = document.getElementById('amount');
+        const rateIn = document.getElementById('rate');
+        const interestIn = document.getElementById('interest');
+        const periodSelect = document.getElementById('period');
+        function formatInterest(num) {
+            const rounded = Math.round(num * 100) / 100;
+            if (rounded % 1 === 0) return rounded.toLocaleString('en-US');
+            const [int, dec] = rounded.toString().split('.');
+            return dec.length === 1 ? `${int}.${dec}0` : rounded.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        function calculate() {
+            const amount = parseFloat(amountIn.value.replace(/,/g, '')) || 0;
+            const rate = parseFloat(rateIn.value.replace(/,/g, '')) || 0;
+            const period = periodSelect.value;
+            if (amount > 0 && rate > 0) {
+                const daily = amount * (rate / 100) / 365;
+                let value;
+                if (period === 'daily') value = daily;
+                else if (period === 'weekly') value = daily * 7;
+                else if (period === 'monthly') value = daily * 30.42;
+                else if (period === 'annually') value = amount * (rate / 100);
+                interestIn.value = formatInterest(value);
+            } else {
+                interestIn.value = '';
+            }
+        }
+        function formatInput(el, decimals) {
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9.]/g, '');
+                if (v.includes('.') && decimals > 0) {
+                    v = v.split('.').map((p, i) => i ? p.slice(0, decimals) : p).join('.');
+                }
+                const [int, dec] = v.split('.');
+                const formatted = int ? Number(int).toLocaleString('en-US') : '';
+                el.value = dec !== undefined ? `${formatted}.${dec}` : formatted;
+                calculate();
+            });
+        }
+        formatInput(amountIn, 2);
+        formatInput(rateIn, 4);
+        periodSelect.addEventListener('change', calculate);
+        calculate();
+    </script>
+</body>
+</html>
