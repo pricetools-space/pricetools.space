@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCA</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh; background: #000; color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+        }
+        .content { width: 100%; max-width: 360px; margin-block: auto; }
+        .converter { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .date-container { display: flex; gap: 5px; width: 100%; }
+        .date-container select { flex: 1; text-align: center; text-align-last: center; }
+        .date-container select option { text-align: left; }
+        .row { display: flex; gap: 8px; width: 100%; }
+        .row > * { flex: 1; }
+        .input-container { position: relative; width: 100%; }
+        select, input, button {
+            width: 100%; background: #000; color: #fff;
+            border: 1px solid #555; border-radius: 10px;
+            font-size: 24px; padding: 20px 12px;
+            -webkit-appearance: none; appearance: none;
+        }
+        .input-container input { padding-left: 32px; padding-right: 12px; }
+        select:hover, select:focus, input:hover, input:focus, button:hover, button:focus {
+            background: #111; outline: none;
+        }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .usd-container::before {
+            content: '$'; position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%); font-size: 24px;
+        }
+        .dca-select { text-align: center; }
+        .result-wrapper { width: 100%; min-height: 140px; text-align: center; }
+        #result { margin-top: 20px; font-size: 19px; line-height: 1.5; }
+        .menu { font-size: 3rem; font-weight: 100; color: #666; margin-block-end: 2vh; text-decoration: none; }
+        .menu:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="date-container">
+                <select id="startDay"><option value="" disabled selected>Day</option></select>
+                <select id="startMonth">
+                    <option value="" disabled selected>Month</option>
+                    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+                    <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+                    <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                </select>
+                <select id="startYear"><option value="" disabled selected>Year</option></select>
+            </div>
+            <div class="row">
+                <div class="input-container usd-container" id="usdContainer">
+                    <input type="tel" inputmode="decimal" id="usdAmount" placeholder="Total USD">
+                </div>
+                <select id="dcaMode" onchange="setMode(this.value)" class="dca-select">
+                    <option value="1">vs Daily DCA</option>
+                    <option value="7" selected>vs Weekly DCA</option>
+                    <option value="30">vs Monthly DCA</option>
+                </select>
+            </div>
+            <button onclick="getComparison()">Compare</button>
+            <div class="result-wrapper">
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+    <script>
+        let priceMap = {};
+        let currentPriceUSD = 0;
+        let dcaDays = 7;
+
+        fetch('/-/data/bitcoin-data.csv').then(r=>r.text()).then(t=>{
+            t.split('\n').forEach(l=>{
+                const [d,p]=l.split(','); if(!d||!p) return;
+                const [m,day,y]=d.trim().split('/');
+                const year = y.length===2?'20'+y:y;
+                const key = `${year}-${m.padStart(2,'0')}-${day.padStart(2,'0')}`;
+                priceMap[key] = parseFloat(p);
+            });
+        });
+        fetch('/-/data/bitcoin-current-data.csv').then(r=>r.text()).then(t=>{
+            const price = parseFloat(t.split('\n')[0]?.split(',')[1]);
+            if(!isNaN(price)) currentPriceUSD = price;
+        });
+
+        function setMode(days) {
+            dcaDays = parseInt(days);
+        }
+
+        for(let i=1;i<=31;i++){
+            const o1 = document.createElement('option');
+            o1.value = o1.text = i.toString().padStart(2,'0');
+            document.getElementById('startDay').appendChild(o1);
+        }
+        for(let i=2011;i<=new Date().getFullYear();i++){
+            const o = document.createElement('option');
+            o.value = o.text = i;
+            document.getElementById('startYear').appendChild(o);
+        }
+
+        function getPrice(key) {
+            return priceMap[key] || currentPriceUSD;
+        }
+
+        function fmtBig(n) {
+            if(n>=1e12) return '$' + (Math.round(n/1e12*10)/10) + 'T';
+            if(n>=1e9) return '$' + (Math.round(n/1e9*10)/10) + 'B';
+            if(n>=1e6) return '$' + (Math.round(n/1e6*10)/10) + 'M';
+            return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+        }
+
+        window.getComparison = () => {
+            const sy = document.getElementById('startYear').value;
+            const sm = document.getElementById('startMonth').value;
+            const sd = document.getElementById('startDay').value;
+            const raw = document.getElementById('usdAmount').value.trim();
+            const res = document.getElementById('result');
+
+            if(!sy || !sm || !sd || !raw) {
+                res.textContent = 'Select start date and enter USD';
+                return;
+            }
+
+            const startKey = `${sy}-${sm}-${sd}`;
+            const usd = parseFloat(raw.replace(/,/g,''));
+            if(!usd || isNaN(usd)) {
+                res.textContent = 'Enter valid USD amount';
+                return;
+            }
+
+            const startDate = new Date(startKey);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            if(startDate > today) {
+                res.textContent = 'Start date must be in the past';
+                return;
+            }
+
+            const lumpBTC = usd / getPrice(startKey);
+            const lumpValueNow = lumpBTC * currentPriceUSD;
+
+            let dcaBTC = 0;
+            let current = new Date(startDate);
+            const endDate = today;
+            const totalDays = Math.floor((endDate - startDate) / 86400000);
+            const steps = Math.max(1, Math.floor(totalDays / dcaDays) + 1);
+            const usdPerStep = usd / steps;
+
+            while(current <= endDate) {
+                const key = current.toISOString().slice(0,10);
+                dcaBTC += usdPerStep / getPrice(key);
+                current.setDate(current.getDate() + dcaDays);
+            }
+
+            const dcaValueNow = dcaBTC * currentPriceUSD;
+
+            let dcaLabel = "Daily DCA";
+            if(dcaDays === 7) dcaLabel = "Weekly DCA";
+            else if(dcaDays === 30) dcaLabel = "Monthly DCA";
+
+            res.innerHTML = `Lump sum: ${fmtBig(lumpValueNow)}<br>${dcaLabel}: ${fmtBig(dcaValueNow)}`;
+        };
+
+        const usdInput = document.getElementById('usdAmount');
+        usdInput.addEventListener('input', function() {
+            let v = this.value.replace(/[^0-9.]/g, '');
+            if (v.split('.').length > 2) v = v.replace(/\.(?=.*\.)/g, '');
+            if (v.includes('.')) {
+                let [int, dec] = v.split('.');
+                if (dec && dec.length > 2) dec = dec.slice(0, 2);
+                v = int + '.' + dec;
+            }
+            const num = parseFloat(v);
+            if (!isNaN(num) && v !== '') {
+                const intPart = Math.floor(num).toLocaleString('en-US');
+                const decPart = v.includes('.') ? '.' + v.split('.')[1] : '';
+                this.value = intPart + decPart;
+            } else {
+                this.value = v;
+            }
+        });
+    </script>
+</body>
+</html>

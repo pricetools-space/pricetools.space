@@ -37,7 +37,6 @@
             padding: 0 1rem;
             text-align: center;
         }
-        h1 { font-size: 32px; margin-bottom: 24px; }
         .converter { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         .input-container { position: relative; width: 100%; }
         input {
@@ -58,17 +57,6 @@
         input:focus { background: #111; outline: none; }
         input::-webkit-inner-spin-button,
         input::-webkit-outer-spin-button { -webkit-appearance: none; }
-        .usd-container::before { content: '$'; }
-
-        .sats-container::before {
-            content: '';
-            width: .9em;
-            height: .9em;
-            background: url('/-/images/sats.svg') center/contain no-repeat;
-        }        
-
-
-
         .usd-container::before {
             content: '$';
             position: absolute;
@@ -78,7 +66,7 @@
             font-size: 24px;
             pointer-events: none;
         }
-        .sats-container::before, .sats-cost::before {
+        .sats-container::before {
             content: '';
             position: absolute;
             left: 10px;
@@ -89,8 +77,6 @@
             background: url('/-/images/sats.svg') center/contain no-repeat;
             pointer-events: none;
         }
-
-
         .sats-container::after {
             content: 'sats';
             position: absolute;
@@ -161,6 +147,11 @@
         satsIn.addEventListener('input', () => {
             satsContainer.classList.toggle('filled', satsIn.value.length > 0);
         });
+        function formatUsd(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return str.endsWith('.00') ? str.slice(0, -3) : str;
+        }
         function updateConversions() {
             if (currentRate === null) return;
             const active = document.activeElement;
@@ -178,7 +169,7 @@
             } else if (active === satsIn) {
                 if (satsVal > 0n) {
                     const usd = Number(satsVal) / btcToSats / currentRate;
-                    usdIn.value = usd.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    usdIn.value = formatUsd(usd);
                     satsContainer.classList.add('filled');
                 } else {
                     usdIn.value = '';

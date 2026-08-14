@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inflation Calculator</title>
-    <meta name="description" content="Calculate the dollar purchasing power over time with a 7% annual inflation rate. Based on expansion of the m2 money supply.">
+    <title>Debasement Calculator</title>
+    <meta name="description" content="Calculate the dollar purchasing power over time with a 6.8% annual inflation rate. Based on expansion of the m2 money supply.">
     <meta name="keywords" content="dollar debasement calculator">
     <meta property="og:title" content="Dollar Debasement Calculator">
-    <meta property="og:description" content="See how much past purchasing power is today at a 7% annual rate of inflation.">
+    <meta property="og:description" content="Purchasing power over time at a 6.8% annual rate of inflation.">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -26,10 +26,6 @@
             margin-block: auto;
             padding: 0 1rem;
             text-align: center;
-        }
-        h1 {
-            font-size: 32px;
-            margin-bottom: 24px;
         }
         .converter {
             display: flex;
@@ -63,10 +59,10 @@
             -webkit-appearance: none;
             appearance: none;
         }
-        .then-usd-container input,
-        .now-usd-container input {
+        .now-usd-container input,
+        .then-usd-container input {
             padding-left: 32px;
-            padding-right: 84px;
+            padding-right: 92px;
         }
         select:hover, select:focus,
         input:hover, input:focus {
@@ -97,10 +93,14 @@
             transition: opacity .2s;
             pointer-events: none;
         }
-        .then-usd-container::after { content: 'Then'; }
-        .now-usd-container::after { content: 'Now'; }
-        .then-usd-container.filled::after,
-        .now-usd-container.filled::after { opacity: 1; }
+        .now-usd-container.filled::after {
+            content: 'Today';
+            opacity: 1;
+        }
+        .then-usd-container.filled::after {
+            content: attr(data-year);
+            opacity: 1;
+        }
         select:invalid { color: #666; }
         .menu {
             font-size: 3rem;
@@ -169,6 +169,14 @@
         const nowContainer = nowIn.parentElement;
         restrictInput(thenIn, 2);
         restrictInput(nowIn, 2);
+        function updateThenSuffix() {
+            const y = document.getElementById('year').value;
+            if (y) {
+                thenContainer.setAttribute('data-year', y);
+            } else {
+                thenContainer.removeAttribute('data-year');
+            }
+        }
         thenIn.addEventListener('input', () => {
             thenContainer.classList.toggle('filled', thenIn.value.length > 0);
         });
@@ -223,8 +231,12 @@
         }
         thenIn.addEventListener('input', () => { lastInput = 'then'; setTimeout(updateConversions, 0); });
         nowIn.addEventListener('input', () => { lastInput = 'now'; setTimeout(updateConversions, 0); });
-        document.getElementById('year').addEventListener('change', () => setTimeout(updateConversions, 0));
+        document.getElementById('year').addEventListener('change', () => {
+            updateThenSuffix();
+            setTimeout(updateConversions, 0);
+        });
         populateYearSelector();
+        updateThenSuffix();
     </script>
 </body>
 </html>

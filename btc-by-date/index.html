@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin By Date</title>
+    <title>Bitcoin by Date</title>
     <meta name="description" content="Free and open source Bitcoin price tools: historical data, USD to BTC converter, and price projections.">
     <meta name="keywords" content="bitcoin price, btc usd converter, bitcoin history, bitcoin prediction, bitcoin tools">
     <meta property="og:title" content="Price Tools - Bitcoin Price History, Converter & Projections">
@@ -260,6 +260,16 @@
         satsIn.addEventListener('input', () => {
             satsContainer.classList.toggle('filled', satsIn.value.length > 0);
         });
+        function formatUsd(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return str.endsWith('.00') ? str.slice(0, -3) : str;
+        }
+        function formatBtc(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 8, maximumFractionDigits: 8});
+            return str.replace(/\.?0+$/, '');
+        }
         async function updateConversions() {
             if (!priceMap || currentRate === null) return;
             const y = document.getElementById('year').value;
@@ -283,17 +293,17 @@
             if (isDateChange && lastInput) {
                 if (lastInput === 'usd' && usdVal > 0) {
                     const btc = usdVal * rate;
-                    btcIn.value = btc.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+                    btcIn.value = formatBtc(btc);
                     satsIn.value = Math.floor(btc * btcToSats).toLocaleString('en-US');
                     satsContainer.classList.add('filled');
                 } else if (lastInput === 'btc' && btcVal > 0) {
-                    usdIn.value = Number(btcVal / rate).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    usdIn.value = formatUsd(btcVal / rate);
                     satsIn.value = Math.floor(btcVal * btcToSats).toLocaleString('en-US');
                     satsContainer.classList.add('filled');
                 } else if (lastInput === 'sats' && satsVal > 0n) {
                     const btc = Number(satsVal) / btcToSats;
-                    btcIn.value = btc.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
-                    usdIn.value = Number(btc / rate).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    btcIn.value = formatBtc(btc);
+                    usdIn.value = formatUsd(btc / rate);
                     satsContainer.classList.add('filled');
                 }
                 return;
@@ -301,7 +311,7 @@
             if (active === usdIn || !active.closest('.input-container')) {
                 if (usdVal > 0) {
                     const btc = usdVal * rate;
-                    btcIn.value = btc.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+                    btcIn.value = formatBtc(btc);
                     satsIn.value = Math.floor(btc * btcToSats).toLocaleString('en-US');
                     satsContainer.classList.add('filled');
                 } else {
@@ -311,7 +321,7 @@
                 }
             } else if (active === btcIn) {
                 if (btcVal > 0) {
-                    usdIn.value = Number(btcVal / rate).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    usdIn.value = formatUsd(btcVal / rate);
                     satsIn.value = Math.floor(btcVal * btcToSats).toLocaleString('en-US');
                     satsContainer.classList.add('filled');
                 } else {
@@ -322,8 +332,8 @@
             } else if (active === satsIn) {
                 if (satsVal > 0n) {
                     const btc = Number(satsVal) / btcToSats;
-                    btcIn.value = btc.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
-                    usdIn.value = Number(btc / rate).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    btcIn.value = formatBtc(btc);
+                    usdIn.value = formatUsd(btc / rate);
                     satsContainer.classList.add('filled');
                 } else {
                     usdIn.value = '';

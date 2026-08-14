@@ -148,6 +148,11 @@
         satsIn.addEventListener('input', () => {
             satsContainer.classList.toggle('filled', satsIn.value.length > 0);
         });
+        function formatGbp(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return str.endsWith('.00') ? str.slice(0, -3) : str;
+        }
         function updateConversions() {
             if (currentRate === null) return;
             const active = document.activeElement;
@@ -165,7 +170,7 @@
             } else if (active === satsIn) {
                 if (satsVal > 0n) {
                     const gbp = Number(satsVal) / btcToSats / currentRate;
-                    gbpIn.value = gbp.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    gbpIn.value = formatGbp(gbp);
                     satsContainer.classList.add('filled');
                 } else {
                     gbpIn.value = '';

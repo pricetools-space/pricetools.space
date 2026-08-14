@@ -34,9 +34,14 @@
       gap: 10px;
       width: 100%;
     }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
     .input-container {
       position: relative;
-      width: 100%;
+      flex: 1;
     }
     input, select {
       width: 100%;
@@ -45,7 +50,7 @@
       border: 1px solid #555;
       border-radius: 10px;
       font-size: 24px;
-      padding: 20px 32px;
+      padding: 20px;
       appearance: none;
     }
     input:hover, input:focus, select:hover, select:focus {
@@ -55,8 +60,7 @@
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
     }
-    select { cursor: pointer; }
-    .th::after { content: 'TH/s'; }
+    select { cursor: pointer; padding-right: 32px; }
     .sats-container::after { content: 'sats per day'; }
     .chance::after { content: 'per day'; }
     .time::after { content: attr(data-unit); }
@@ -64,7 +68,7 @@
     .kwh::after { content: 'per kWh'; }
     .daily-cost::after { content: 'usd per day'; }
     .sats-cost::after { content: 'sats per day'; }
-    .th::after, .sats-container::after, .chance::after, .time::after,
+    .sats-container::after, .chance::after, .time::after,
     .power::after, .kwh::after, .daily-cost::after, .sats-cost::after {
       position: absolute;
       right: 18px;
@@ -73,11 +77,10 @@
       font-size: 24px;
       pointer-events: none;
     }
-    .th input { padding-right: 85px; }
     .power input { padding-right: 96px; }
     .chance input { padding-right: 108px; }
     .time input { padding-right: 0px; }
-    .kwh input { padding-right: 118px; }
+    .kwh input { padding: 20px 32px 20px 32px; }
     .daily-cost input, .sats-container input, .sats-cost input {
       padding: 20px 154px 20px 32px;
     }
@@ -127,8 +130,20 @@
           <option value="cost">Mining Cost</option>
         </select>
       </div>
-      <div class="input-container th" id="hashrate-container">
-        <input type="text" inputmode="decimal" id="hashrate" placeholder="Hashrate">
+      <div class="input-group" id="hashrate-container">
+        <div class="input-container">
+          <input type="text" inputmode="decimal" id="hashrate" placeholder="Hashrate">
+        </div>
+        <div class="input-container">
+          <select id="hash-unit">
+            <option value="KH">KH/s</option>
+            <option value="MH">MH/s</option>
+            <option value="GH">GH/s</option>
+            <option value="TH" selected>TH/s</option>
+            <option value="PH">PH/s</option>
+            <option value="EH">EH/s</option>
+          </select>
+        </div>
       </div>
       <div id="profit" class="mode-group">
         <div class="input-container sats-container">
@@ -163,18 +178,21 @@
     const modeSelect = document.getElementById('mode');
     const hashrateContainer = document.getElementById('hashrate-container');
     const groups = { profit: document.getElementById('profit'), cost: document.getElementById('cost') };
+
     function showGroup() {
       const m = modeSelect.value;
       Object.values(groups).forEach(g => g.style.display = 'none');
       groups[m].style.display = 'flex';
       hashrateContainer.classList.toggle('hidden', m === 'cost');
     }
+
     let networkHashrate = 0;
     let avgRewardSats = 0;
     let btcPrice = 0;
     const satsPerBTC = 100000000;
     const blocksPerDay = 144;
     const blockIntervalSeconds = 600;
+
     async function loadMiningData() {
       try {
         const r = await fetch('/-/data/mining-data.csv');
@@ -187,6 +205,7 @@
         }
       } catch {}
     }
+
     async function loadBTCPrice() {
       try {
         const res = await fetch('/-/data/bitcoin-current-data.csv');
@@ -198,9 +217,16 @@
         }
       } catch {}
     }
-    function clean(v) {
-      return parseFloat(v.replace(/,/g, '')) || 0;
+
+    function clean(v) { return parseFloat(v.replace(/,/g, '')) || 0; }
+
+    function getHashrateTH() {
+      const val = clean(document.getElementById('hashrate').value);
+      const unit = document.getElementById('hash-unit').value;
+      const multipliers = { KH: 1e-9, MH: 1e-6, GH: 1e-3, TH: 1, PH: 1e3, EH: 1e6 };
+      return val * (multipliers[unit] || 1);
     }
+
     function restrictInput(el, maxDec = 2) {
       el.addEventListener('input', () => {
         let v = el.value.replace(/[^0-9.]/g, '');
@@ -214,12 +240,14 @@
         el.value = d !== undefined ? `${f}.${d}` : f;
       });
     }
+
     function restrictInputNoDecimal(el) {
       el.addEventListener('input', () => {
         let v = el.value.replace(/[^0-9]/g, '');
         el.value = v ? Number(v).toLocaleString('en-US') : '';
       });
     }
+
     function updateFromPoolPayout() {
       const dailySats = clean(document.getElementById('dailysats').value);
       const chanceEl = document.getElementById('chance');
@@ -231,6 +259,7 @@
         if (share > 0) {
           const hashrateTH = share * (networkHashrate / 1e12);
           document.getElementById('hashrate').value = hashrateTH.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          document.getElementById('hash-unit').value = 'TH';
           const dailyProb = share * blocksPerDay;
           chanceEl.value = dailyProb >= 1 ? Math.round(dailyProb).toLocaleString('en-US') : `1 in ${Math.round(1 / dailyProb).toLocaleString('en-US')}`;
           const expSec = blockIntervalSeconds / share;
@@ -259,16 +288,18 @@
         timeCont.dataset.unit = '';
       }
     }
+
     function update() {
-      const hr = clean(document.getElementById('hashrate').value);
       const mode = modeSelect.value;
+      const hrTH = getHashrateTH();
+
       if (mode === 'profit') {
         const satsEl = document.getElementById('dailysats');
         const chanceEl = document.getElementById('chance');
         const expEl = document.getElementById('expected');
         const timeCont = expEl.parentElement;
-        if (hr > 0 && networkHashrate > 0 && avgRewardSats > 0) {
-          const share = hr / (networkHashrate / 1e12);
+        if (hrTH > 0 && networkHashrate > 0 && avgRewardSats > 0) {
+          const share = hrTH / (networkHashrate / 1e12);
           const dailySats = Math.floor(share * avgRewardSats * blocksPerDay);
           satsEl.value = dailySats.toLocaleString('en-US');
           const dailyProb = share * blocksPerDay;
@@ -307,15 +338,19 @@
         }
       }
     }
+
     modeSelect.addEventListener('change', () => { showGroup(); update(); });
     document.getElementById('hashrate').addEventListener('input', update);
+    document.getElementById('hash-unit').addEventListener('change', update);
     document.getElementById('dailysats').addEventListener('input', updateFromPoolPayout);
     document.getElementById('power').addEventListener('input', update);
     document.getElementById('kwh').addEventListener('input', update);
+
     restrictInput(document.getElementById('hashrate'), 2);
     restrictInputNoDecimal(document.getElementById('dailysats'));
     restrictInput(document.getElementById('power'));
     restrictInput(document.getElementById('kwh'), 4);
+
     showGroup();
     Promise.all([loadMiningData(), loadBTCPrice()]).then(update);
   </script>

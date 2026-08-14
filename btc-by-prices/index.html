@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Comparison</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100dvh;background:#000;color:#fff;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+        .content{width:100%;max-width:360px;margin-block:auto}
+        .converter{display:flex;flex-direction:column;gap:10px;width:100%}
+        .price-group{width:100%}
+        .field-container{position:relative;width:100%}
+        input{width:100%;background:#000;color:#fff;border:1px solid #555;border-radius:10px;font-size:24px;padding:20px 12px;-webkit-appearance:none;appearance:none}
+        .field-container input{padding-left:32px;padding-right:160px}
+        input:hover,input:focus{background:#111;outline:none}
+        input[readonly]{background:#000;color:#fff}
+        .prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:24px;pointer-events:none;opacity:0;transition:opacity .2s}
+        .has-value .prefix{opacity:1}
+        .suffix{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:20px;pointer-events:none;transition:opacity .2s;white-space:nowrap;color:#666}
+        .menu{font-size:3rem;font-weight:100;color:#666;margin-block-end:2vh;text-decoration:none;transition:color .5s}
+        .menu:hover{color:#fff}
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="price-group">
+                <div class="field-container" id="comparePriceContainer">
+                    <span class="prefix">$</span>
+                    <input type="text" inputmode="decimal" id="priceCompare" placeholder="Price">
+                    <span class="suffix">per bitcoin then</span>
+                </div>
+            </div>
+           
+            <div class="field-container" id="usdContainer">
+                <span class="prefix">$</span>
+                <input type="text" inputmode="decimal" id="usdAmount" placeholder="USD Amount">
+                <span class="suffix">worth then</span>
+            </div>
+           
+            <div class="price-group">
+                <div class="field-container" id="currentPriceContainer">
+                    <span class="prefix">$</span>
+                    <input type="text" inputmode="decimal" id="priceCurrent" readonly>
+                    <span class="suffix">per bitcoin now</span>
+                </div>
+            </div>
+           
+            <div class="field-container" id="resultContainer">
+                <span class="prefix">$</span>
+                <input type="text" id="result" placeholder="USD Amount" readonly>
+                <span class="suffix" style="color:#666">worth now</span>
+            </div>
+        </div>
+    </div>
+    <a data-open-drawer class="menu">≡</a>
+    <script src="/menu/drawer.js"></script>
+    <script>
+        let priceCurrent = 0;
+        const els = {
+            priceCurrent: document.getElementById('priceCurrent'),
+            usdAmount: document.getElementById('usdAmount'),
+            priceCompare: document.getElementById('priceCompare'),
+            result: document.getElementById('result'),
+            currentPriceContainer: document.getElementById('currentPriceContainer'),
+            usdContainer: document.getElementById('usdContainer'),
+            comparePriceContainer: document.getElementById('comparePriceContainer'),
+            resultContainer: document.getElementById('resultContainer')
+        };
+
+        function fmt(n){
+            if(n>=1e12) return (n/1e12).toFixed(1)+'T';
+            if(n>=1e9) return (n/1e9).toFixed(1)+'B';
+            const str = Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+            return str.endsWith('.00') ? str.slice(0,-3) : str;
+        }
+        function clean(v){
+            return parseFloat(v.replace(/,/g,'')) || 0;
+        }
+        function restrictInput(el, maxDec=2){
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9.]/g,'');
+                if(v.includes('.')) v = v.split('.').map((p,i) => i ? p.slice(0,maxDec) : p).join('.');
+                const [i,d] = v.split('.');
+                const f = i ? Number(i).toLocaleString('en-US') : '';
+                el.value = d !== undefined ? `${f}.${d}` : f;
+                update();
+            });
+        }
+
+        async function loadCurrentPrice() {
+            try {
+                const r = await fetch('/-/data/bitcoin-current-data.csv');
+                const t = await r.text();
+                const line = t.split('\n').find(l => l.trim());
+                if (line) {
+                    priceCurrent = parseFloat(line.split(',')[1]) || 0;
+                    if (priceCurrent > 0) {
+                        els.priceCurrent.value = priceCurrent.toLocaleString('en-US');
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function update(){
+            const usd = clean(els.usdAmount.value);
+            const priceCompare = clean(els.priceCompare.value);
+
+            els.currentPriceContainer.classList.toggle('has-value', !!els.priceCurrent.value);
+            els.usdContainer.classList.toggle('has-value', !!els.usdAmount.value);
+            els.comparePriceContainer.classList.toggle('has-value', !!els.priceCompare.value);
+
+            if(usd <= 0 || priceCompare <= 0 || priceCurrent <= 0){
+                els.result.value = '';
+                els.resultContainer.classList.remove('has-value');
+                return;
+            }
+
+            const btc = usd / priceCompare;
+            const resultValue = btc * priceCurrent;
+            els.result.value = fmt(resultValue);
+            els.resultContainer.classList.add('has-value');
+        }
+
+        restrictInput(els.priceCompare, 2);
+        restrictInput(els.usdAmount, 2);
+
+        loadCurrentPrice().then(() => update());
+
+        els.usdAmount.addEventListener('input', update);
+        els.priceCompare.addEventListener('input', update);
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interest Calculator</title>
+    <title>Interest</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -50,7 +50,10 @@
             transform: translateY(-50%);
             font-size: 24px;
             pointer-events: none;
-            opacity: 0.8;
+            color: #888;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
         }
         .top-row {
             display: grid;
@@ -71,7 +74,7 @@
             height: 100%;
         }
         #period:hover, #period:focus { background-color: #111; outline: none; }
-        #interest::placeholder { color: #666; }
+        #yield::placeholder { color: #666; }
         .menu {
             font-size: 3rem;
             font-weight: 100;
@@ -94,7 +97,7 @@
             <div class="top-row">
                 <div class="input-container">
                     <input type="tel" inputmode="decimal" id="rate" placeholder="APR">
-                    <span class="suffix">%</span>
+                    <span class="suffix" style="opacity:1;color:#888;">%</span>
                 </div>
                 <div>
                     <select id="period">
@@ -107,7 +110,8 @@
             </div>
             <div class="input-container">
                 <span class="prefix">$</span>
-                <input type="text" id="interest" placeholder="Interest" readonly>
+                <input type="text" id="yield" placeholder="Interest" readonly style="padding-right:126px;">
+                <span class="suffix" id="timeSuffix"></span>
             </div>
         </div>
     </div>
@@ -116,14 +120,29 @@
     <script>
         const amountIn = document.getElementById('amount');
         const rateIn = document.getElementById('rate');
-        const interestIn = document.getElementById('interest');
+        const yieldIn = document.getElementById('yield');
+        const suffixEl = document.getElementById('timeSuffix');
         const periodSelect = document.getElementById('period');
-        function formatInterest(num) {
+
+        function formatyield(num) {
             const rounded = Math.round(num * 100) / 100;
             if (rounded % 1 === 0) return rounded.toLocaleString('en-US');
             const [int, dec] = rounded.toString().split('.');
             return dec.length === 1 ? `${int}.${dec}0` : rounded.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
+
+        function updateSuffix() {
+            const hasValue = yieldIn.value.trim() !== '';
+            const period = periodSelect.value;
+            let text = '';
+            if (period === 'daily') text = 'per day';
+            else if (period === 'weekly') text = 'per week';
+            else if (period === 'monthly') text = 'per month';
+            else if (period === 'annually') text = 'per year';
+            suffixEl.textContent = text;
+            suffixEl.style.opacity = hasValue ? '1' : '0';
+        }
+
         function calculate() {
             const amount = parseFloat(amountIn.value.replace(/,/g, '')) || 0;
             const rate = parseFloat(rateIn.value.replace(/,/g, '')) || 0;
@@ -135,11 +154,13 @@
                 else if (period === 'weekly') value = daily * 7;
                 else if (period === 'monthly') value = daily * 30.42;
                 else if (period === 'annually') value = amount * (rate / 100);
-                interestIn.value = formatInterest(value);
+                yieldIn.value = formatyield(value);
             } else {
-                interestIn.value = '';
+                yieldIn.value = '';
             }
+            updateSuffix();
         }
+
         function formatInput(el, decimals) {
             el.addEventListener('input', () => {
                 let v = el.value.replace(/[^0-9.]/g, '');
@@ -152,6 +173,7 @@
                 calculate();
             });
         }
+
         formatInput(amountIn, 2);
         formatInput(rateIn, 4);
         periodSelect.addEventListener('change', calculate);

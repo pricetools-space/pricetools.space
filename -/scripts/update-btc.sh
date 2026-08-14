@@ -20,18 +20,16 @@ if [ "$LAST_EPOCH" -ge "$YESTERDAY_EPOCH" ]; then
 fi
 NEW_LINES=""
 CURRENT_EPOCH=$((LAST_EPOCH + 86400))
-START_TS=$CURRENT_EPOCH
-END_TS=$((YESTERDAY_EPOCH + 86400))
-RAW=$(wget -qO- "https://mempool.space/api/v1/btc/price/history?start=${START_TS}&end=${END_TS}")
 while [ "$CURRENT_EPOCH" -le "$YESTERDAY_EPOCH" ]; do
-    DAY_TS=$((CURRENT_EPOCH + 43200))
-    CLOSE=$(echo "$RAW" | grep -o '"price":[0-9]*' | sed 's/.*://' | head -1 | awk '{printf "%.0f",$1}')
+    DAY_TS=$((CURRENT_EPOCH + 90300))
+    RAW=$(wget -qO- "https://mempool.space/api/v1/historical-price?currency=USD&timestamp=${DAY_TS}")
+    CLOSE=$(echo "$RAW" | grep -o '"USD":[0-9]*' | sed 's/.*://' | head -1 | awk '{printf "%.0f",$1}')
     if [ -z "$CLOSE" ] || [ "$CLOSE" = "0" ]; then
-        FALLBACK=$(wget -qO- "https://mempool.space/api/v1/prices")
-        CLOSE=$(echo "$FALLBACK" | grep -o '"USD":[0-9]*' | sed 's/.*://' | awk '{printf "%.0f",$1}')
+        exit 1
     fi
     MDY=$(date -d "@$CURRENT_EPOCH" +%-m/%-d/%y)
     NEW_LINES="$MDY,$CLOSE\n$NEW_LINES"
     CURRENT_EPOCH=$((CURRENT_EPOCH + 86400))
+    sleep 1
 done
 [ -n "$NEW_LINES" ] && printf "%b" "$NEW_LINES" > "$CSV.new" && cat "$CSV" >> "$CSV.new" && mv "$CSV.new" "$CSV"

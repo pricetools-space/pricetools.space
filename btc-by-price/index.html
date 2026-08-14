@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin By Price</title>
+    <title>Bitcoin by Price</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -45,7 +45,7 @@
             appearance: none;
         }
         .input-container input { padding-left: 32px; }
-        .btc-price input, .usd-container input { padding-right: 0px; }
+        .usd-container input { padding-right: 0; }
         .sats-container input { padding-right: 72px; }
         input:hover, input:focus { background: #111; outline: none; }
         input::-webkit-inner-spin-button { -webkit-appearance: none; }
@@ -59,7 +59,7 @@
             font-size: 24px;
             pointer-events: none;
         }
-        .btc-amount::before {
+        .input-container.btc-amount::before {
             content: '₿';
             position: absolute;
             left: 12px;
@@ -87,7 +87,6 @@
             transform: translateY(-50%);
             font-size: 20px;
             color: #666;
-            opacity: 1;
             pointer-events: none;
         }
         .btc-price input {
@@ -172,6 +171,16 @@
             document.getElementById('sats').value = '';
             document.querySelectorAll('.usd-container, .btc-amount, .sats-container').forEach(el => el.classList.remove('filled'));
         }
+        function formatUsd(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return str.endsWith('.00') ? str.slice(0, -3) : str;
+        }
+        function formatBtc(val) {
+            if (val <= 0) return '';
+            const str = Number(val).toLocaleString('en-US', {minimumFractionDigits: 8, maximumFractionDigits: 8});
+            return str.replace(/\.?0+$/, '');
+        }
         function update(changedId) {
             if (changedId !== 'btcPrice') lastModified = changedId;
             const priceEl = document.getElementById('btcPrice');
@@ -202,71 +211,39 @@
                 if (lastModified === 'usd' && usd > 0) {
                     btc = usd / price;
                     sats = Math.floor(btc * 1e8);
-                    btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                    btcEl.value = formatBtc(btc);
                     satsEl.value = sats.toLocaleString('en-US');
                     satsContainer.classList.toggle('filled', !!satsEl.value);
                 } else if (lastModified === 'btcAmount' && btc > 0) {
                     usd = price * btc;
                     sats = Math.floor(btc * 1e8);
-                    if (usd < 0.01) {
-                        usdEl.value = '0';
-                    } else {
-                        const formatted = usd.toLocaleString('en-US', { 
-                            minimumFractionDigits: 0, 
-                            maximumFractionDigits: 2 
-                        });
-                        usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
-                    }
+                    usdEl.value = formatUsd(usd);
                     satsEl.value = sats.toLocaleString('en-US');
                     satsContainer.classList.toggle('filled', !!satsEl.value);
                 } else if (lastModified === 'sats' && sats > 0) {
                     btc = sats / 1e8;
                     usd = price * btc;
-                    btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
-                    if (usd < 0.01) {
-                        usdEl.value = '0';
-                    } else {
-                        const formatted = usd.toLocaleString('en-US', { 
-                            minimumFractionDigits: 0, 
-                            maximumFractionDigits: 2 
-                        });
-                        usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
-                    }
+                    btcEl.value = formatBtc(btc);
+                    usdEl.value = formatUsd(usd);
                     satsContainer.classList.toggle('filled', !!satsEl.value);
                 }
             } else if (changedId === 'usd' && usd > 0) {
                 btc = usd / price;
                 sats = Math.floor(btc * 1e8);
-                btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+                btcEl.value = formatBtc(btc);
                 satsEl.value = sats.toLocaleString('en-US');
                 satsContainer.classList.toggle('filled', !!satsEl.value);
             } else if (changedId === 'btcAmount' && btc > 0) {
                 usd = price * btc;
                 sats = Math.floor(btc * 1e8);
-                if (usd < 0.01) {
-                    usdEl.value = '0';
-                } else {
-                    const formatted = usd.toLocaleString('en-US', { 
-                        minimumFractionDigits: 0, 
-                        maximumFractionDigits: 2 
-                    });
-                    usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
-                }
+                usdEl.value = formatUsd(usd);
                 satsEl.value = sats.toLocaleString('en-US');
                 satsContainer.classList.toggle('filled', !!satsEl.value);
             } else if (changedId === 'sats' && sats > 0) {
                 btc = sats / 1e8;
                 usd = price * btc;
-                btcEl.value = btc.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
-                if (usd < 0.01) {
-                    usdEl.value = '0';
-                } else {
-                    const formatted = usd.toLocaleString('en-US', { 
-                        minimumFractionDigits: 0, 
-                        maximumFractionDigits: 2 
-                    });
-                    usdEl.value = formatted.replace(/\.00$/, '').replace(/(\.\d)0$/, '\$1');
-                }
+                btcEl.value = formatBtc(btc);
+                usdEl.value = formatUsd(usd);
                 satsContainer.classList.toggle('filled', !!satsEl.value);
             }
         }
