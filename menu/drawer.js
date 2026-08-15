@@ -128,7 +128,6 @@
           <div class="menu-items">
             <a href="/usd-to-sats">USD to Sats</a>
             <a href="/btc-by-price">BTC by Price</a>
-            <a href="/gbp-to-sats">GBP to Sats</a>
             <a href="/btc-by-date">BTC by Date</a>
             <a href="/supply">Total Supply</a>
             <a href="/compound">Compound</a>
