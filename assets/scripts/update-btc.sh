@@ -1,5 +1,5 @@
 #!/bin/bash
-CSV="/home/YOURUSERNAMEHERE/pricetools.space/-/data/bitcoin-data.csv"
+CSV="/home/YOURUSERNAMEHERE/pricetools.space/assets/data/bitcoin-data.csv"
 YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
 YESTERDAY_EPOCH=$(date -d "$YESTERDAY" +%s)
 YESTERDAY_MDY=$(date -d "yesterday" +%-m/%-d/%y)

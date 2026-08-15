@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Future Price Tool</title>
-    <meta name="description" content="Project future value of Bitcoin, USD or Sats at chosen annual return rate.">
-    <link rel="icon" type="image/png" href="/-/favicon-files/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/svg+xml" href="/-/favicon-files/favicon.svg">
+    <meta name="description" content="Project the future value of Bitcoin, USD, or sats at a chosen annual return rate.">
+    <link rel="canonical" href="https://pricetools.space/future">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Future Price Tool">
+    <meta property="og:description" content="Project the future value of Bitcoin, USD, or sats at a chosen annual return rate.">
+    <meta property="og:url" content="https://pricetools.space/future">
+    <meta property="og:image" content="https://pricetools.space/assets/images/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Future Price Tool">
+    <meta name="twitter:description" content="Project the future value of Bitcoin, USD, or sats at a chosen annual return rate.">
+    <meta name="twitter:image" content="https://pricetools.space/assets/images/preview.png">
+    <link rel="icon" type="image/png" href="/assets/favicon-files/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-files/favicon.svg">
     <link rel="shortcut icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/-/favicon-files/apple-touch-icon.png">
-    <link rel="manifest" href="/-/favicon-files/site.webmanifest">
-    <link rel="preload" href="/-/data/bitcoin-current-data.csv" as="fetch" crossorigin="anonymous">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
+    <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
+    <link rel="preload" href="/assets/data/bitcoin-current-data.csv" as="fetch" crossorigin="anonymous">
     <style>
         * {
             box-sizing: border-box;
@@ -133,17 +145,6 @@
             text-align: center;
             line-height: 1.4;
         }
-        .menu {
-            font-size: 3rem;
-            font-weight: 100;
-            color: #666;
-            text-decoration: none;
-            transition: color .2s;
-            margin-block-end: 2vh;
-        }
-        .menu:hover {
-            color: #fff;
-        }
     </style>
 </head>
 <body>
@@ -176,8 +177,7 @@
             </div>
         </div>
     </div>
-    <a data-open-drawer class="menu">≡</a>
-    <script src="/menu/drawer.js"></script>
+    <script src="/menu/menu.js"></script>
     <script>
         const amountIn = document.getElementById('amount');
         const modeSelect = document.getElementById('mode');
@@ -187,7 +187,7 @@
         let animationInterval = null;
         async function loadCurrentPrice(attempt = 1) {
             try {
-                const res = await fetch('/-/data/bitcoin-current-data.csv?t=' + Date.now(), {
+                const res = await fetch('/assets/data/bitcoin-current-data.csv?t=' + Date.now(), {
                     cache: 'no-store',
                     headers: { 'Cache-Control': 'no-cache' }
                 });

@@ -9,5 +9,5 @@ extract_price() {
 
 USD=$(extract_price USD | awk '{printf "%.0f", $1}')
 
-BASE="/home/YOURUSERNAMEHERE/pricetools.space/-/data"
+BASE="/home/YOURUSERNAMEHERE/pricetools.space/assets/data"
 echo "$NOW,$USD" > "$BASE/bitcoin-current-data.csv"

@@ -1,5 +1,5 @@
 #!/bin/bash
-MINING_CSV="/home/YOURUSERNAMEHERE/pricetools.space/-/data/mining-data.csv"
+MINING_CSV="/home/YOURUSERNAMEHERE/pricetools.space/assets/data/mining-data.csv"
 TIMESTAMP=$(date -u +%Y-%m-%d)
 HASHRATE_JSON=$(curl -s "https://mempool.space/api/v1/mining/hashrate/3d")
 CURRENT_HASHRATE=$(echo "$HASHRATE_JSON" | grep -o '"currentHashrate":[0-9.e+-]*' | cut -d: -f2)

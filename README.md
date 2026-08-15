@@ -8,7 +8,7 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 - **USD to BTC/Sats Converter**: Instant live conversions, including direct USD to Sats.
 - **Price History Tool**: Track current value of past purchases by date or range; view historical prices.
 - **Price Projection Tool**: Model future prices based on selected growth rate.
-- **More Tools**: Compound growth, debasement calculator, lending & interest calculators, mining stats, sats-denominated pricing, total BTC supply.
+- **More Tools**: Compound growth, debasement calculator, lending & interest calculators, mining stats, total BTC supply.
 
 ## Setup & Usage
 1. Download all files/folders from this repo.
@@ -16,12 +16,12 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 3. Open `index.html` — fully client-side, works offline after first load.
 
 ## Data Updates
-- `update-btc.sh`: Daily fetch of yesterday's close price (appends to `/-/data/bitcoin-data.csv`).
-- `update-btc-current.sh`: Frequent current price refresh (overwrites `/-/data/bitcoin-current-data.csv`).
-- `update-mining.sh`: Updates mining stats (`/-/data/mining-data.csv`).
+- `update-btc.sh`: Daily fetch of yesterday's close price (appends to `/assets/data/bitcoin-data.csv`).
+- `update-btc-current.sh`: Frequent current price refresh (overwrites `/assets/data/bitcoin-current-data.csv`).
+- `update-mining.sh`: Updates mining stats (`/assets/data/mining-data.csv`).
 - Edit scripts: Replace `YOURUSERNAMEHERE` and path placeholders.
-- Example cron (daily historical at 1am UTC): `0 1 * * * /bin/bash /home/YOURUSERNAMEHERE/pricetools.space/-/scripts/update-btc.sh > /dev/null 2>&1`
-- Current price example: `*/10 * * * * /bin/bash /home/YOURUSERNAMEHERE/pricetools.space/-/scripts/update-btc-current.sh > /dev/null 2>&1`
+- Example cron (daily historical at 1am UTC): `0 1 * * * /bin/bash /home/YOURUSERNAMEHERE/pricetools.space/assets/scripts/update-btc.sh > /dev/null 2>&1`
+- Current price example: `*/10 * * * * /bin/bash /home/YOURUSERNAMEHERE/pricetools.space/assets/scripts/update-btc-current.sh > /dev/null 2>&1`
 
 ## License
 MIT © pricetools-space — free to use, modify, and distribute.
