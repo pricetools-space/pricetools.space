@@ -1,6 +1,6 @@
 # pricetools.space
 
-Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical purchase value tracker, price projection modeler, compound growth, debasement calculator, lending & interest tools, and mining calculation tools. 100% static site, no trackers, no cookies, no personal data collected.
+Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical purchase value tracker, price projection modeler, compound growth, lending & interest tools, and mining calculation tools. 100% static site, no trackers, no cookies, no personal data collected.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -8,7 +8,7 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 - **USD to BTC/Sats Converter**: Instant live conversions, including direct USD to Sats.
 - **Price History Tool**: Track current value of past purchases by date or range; view historical prices.
 - **Price Projection Tool**: Model future prices based on selected growth rate.
-- **More Tools**: Compound growth, debasement calculator, lending & interest calculators, mining stats, total BTC supply.
+- **More Tools**: Compound growth, lending & interest calculators, mining stats, total BTC supply.
 
 ## Setup & Usage
 1. Download all files/folders from this repo.

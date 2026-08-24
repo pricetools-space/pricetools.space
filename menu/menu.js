@@ -20,12 +20,6 @@
       width:100%; max-width:360px; padding:40px 1rem 150px;
       text-align:center; margin:0 auto;
     }
-    .menu-tools { display:flex; gap:21px; margin-bottom:42px; justify-content:center; }
-    .menu-tools a { display:flex; flex-direction:column; align-items:center; text-decoration:none; }
-    .menu-tools img { width:83px; margin-bottom:16px; }
-    .menu-tools .text { font-size:14px; color:#aaa; font-weight:bold; transition:color .2s; }
-    .menu-tools a:hover .text { color:#fff; }
-    .menu-tools a:hover img { transform:scale(1.1); transition:transform .2s; }
     .menu-body { display:flex; flex-direction:column; align-items:center; width:100%; gap:45px; }
     .menu-body a { width:100%; color:#aaa; font-weight:bold; text-decoration:none; text-align:center; transition:color .2s; }
     .menu-body a:hover { color:#fff; }
@@ -89,20 +83,6 @@
     <div id="menu-overlay"></div>
     <div id="menu">
       <div class="menu-content">
-        <div class="menu-tools">
-          <a href="/past" aria-label="Past Price Tool">
-            <img src="/assets/images/r.svg" alt="">
-            <span class="text">Past</span>
-          </a>
-          <a href="/usd-to-btc" aria-label="USD to BTC">
-            <img src="/assets/images/cal.svg" alt="">
-            <span class="text">USD to BTC</span>
-          </a>
-          <a href="/future" aria-label="Future Price Tool">
-            <img src="/assets/images/ff.svg" alt="">
-            <span class="text">Future</span>
-          </a>
-        </div>
         <div class="menu-body">
           <div class="menu-about">
             <a href="/about">About</a>
@@ -110,13 +90,16 @@
             <a href="#" onclick="openDonateModal(event)">Donate</a>
           </div>
           <div class="menu-items">
+            <a href="/past">Past</a>
+            <a href="/future">Future</a>
+            <a href="/">USD to BTC</a>
             <a href="/usd-to-sats">USD to Sats</a>
             <a href="/btc-by-price">BTC by Price</a>
             <a href="/btc-by-date">BTC by Date</a>
+            <a href="/gbp-to-sats">GBP to Sats</a>
             <a href="/supply">Total Supply</a>
             <a href="/compound">Compound</a>
             <a href="/mining">Mining</a>
-            <a href="/debasement">Debasement</a>
             <a href="/interest">Interest</a>
             <a href="/lending">Lending</a>
           </div>
