@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocation</title>
+    <meta name="description" content="Split your bitcoin holdings into separate stacks and see the percentage of each.">
+    <link rel="canonical" href="https://pricetools.space/allocation">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Allocation">
+    <meta property="og:description" content="Split your bitcoin holdings into separate stacks and see the percentage of each.">
+    <meta property="og:url" content="https://pricetools.space/allocation">
+    <meta property="og:image" content="https://pricetools.space/assets/images/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Allocation">
+    <meta name="twitter:description" content="Split your bitcoin holdings into separate stacks and see the percentage of each.">
+    <meta name="twitter:image" content="https://pricetools.space/assets/images/preview.png">
+    <link rel="icon" type="image/png" href="/assets/favicon-files/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-files/favicon.svg">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
+    <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh; background: #000; color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+        }
+        .content {
+            width: 100%; max-width: 480px;
+            margin-block: auto; padding: 0 1rem 2rem;
+        }
+        .converter {
+            display: flex; flex-direction: column;
+            gap: 12px; width: 100%;
+        }
+        .input-container {
+            position: relative;
+        }
+        input {
+            width: 100%;
+            background: #000; color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input:hover, input:focus { background: #111; outline: none; }
+        .prefix {
+            position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px; pointer-events: none; opacity: 0.5;
+        }
+        .row { display: flex; gap: 12px; }
+        .row .amt-container, .row .pct-container {
+            flex: 0 0 calc((100% - 12px) / 2);
+            min-width: 0;
+        }
+        .amt-container input { padding-left: 32px; }
+        .pct-container {
+            display: flex; align-items: center; justify-content: flex-end;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="row">
+                <div class="input-container amt-container">
+                    <span class="prefix">₿</span>
+                    <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
+                </div>
+                <div class="pct-container alloc-pct">0%</div>
+            </div>
+            <div class="row">
+                <div class="input-container amt-container">
+                    <span class="prefix">₿</span>
+                    <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
+                </div>
+                <div class="pct-container alloc-pct">0%</div>
+            </div>
+            <div class="row">
+                <div class="input-container amt-container">
+                    <span class="prefix">₿</span>
+                    <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
+                </div>
+                <div class="pct-container alloc-pct">0%</div>
+            </div>
+            <div class="row">
+                <div class="input-container amt-container">
+                    <span class="prefix">₿</span>
+                    <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
+                </div>
+                <div class="pct-container alloc-pct">0%</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const amtIns = document.querySelectorAll('.alloc-amt');
+        const pctEls = document.querySelectorAll('.alloc-pct');
+
+        function fmtPct(n) {
+            const rounded = Math.round(n * 10) / 10;
+            let str = rounded.toFixed(1);
+            if (str.endsWith('.0')) str = str.slice(0, -2);
+            return str;
+        }
+
+        function calculate() {
+            const amts = Array.from(amtIns).map(el => parseFloat(el.value.replace(/,/g, '')) || 0);
+            const total = amts.reduce((a, b) => a + b, 0);
+            amts.forEach((amt, i) => {
+                const pct = total > 0 ? (amt / total) * 100 : 0;
+                pctEls[i].textContent = fmtPct(pct) + '%';
+            });
+        }
+
+        function formatAmountInput(el) {
+            el.addEventListener('input', () => {
+                let v = el.value.replace(/[^0-9.]/g, '');
+                if (v.includes('.')) {
+                    const parts = v.split('.');
+                    if (parts[1]) parts[1] = parts[1].slice(0, 8);
+                    v = parts.join('.');
+                }
+                const [int, dec] = v.split('.');
+                const formatted = int ? Number(int).toLocaleString('en-US') : '';
+                el.value = dec !== undefined ? `${formatted}.${dec}` : formatted;
+                calculate();
+            });
+        }
+
+        amtIns.forEach(formatAmountInput);
+    </script>
+    <script src="/menu/menu.js"></script>
+</body>
+</html>

@@ -107,6 +107,8 @@
             <a href="/btc-by-price">BTC by Price</a>
             <a href="/btc-by-date">BTC by Date</a>
             <a href="/gbp-to-sats">GBP to Sats</a>
+            <a href="/eur-to-sats">EUR to Sats</a>
+            <a href="/allocation">Allocation</a>
             <a href="/supply">Total Supply</a>
             <a href="/compound">Compound</a>
             <a href="/mining">Mining</a>
