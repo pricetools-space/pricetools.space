@@ -44,6 +44,8 @@
       transition:color .6s ease, filter .6s ease;
     }
     #menu-toggle:hover { color:#fff; filter:drop-shadow(0 0 14px rgba(255,255,255,0.8)); animation:none; }
+    #menu-toggle:focus { outline:none; }
+    #menu-toggle:focus-visible { outline:1px solid #555; border-radius:10px; }
     #menu-toggle .bar {
       position:absolute; left:50%; top:50%; width:26px; height:1.5px; margin-left:-13px;
       background:currentColor; border-radius:2px;
@@ -143,6 +145,7 @@
   const open = () => { isOpen = true; overlay.classList.add('open'); menu.classList.add('open'); toggle.classList.add('open'); toggle.setAttribute('aria-label', 'Close'); };
   const close = () => { isOpen = false; overlay.classList.remove('open'); menu.classList.remove('open'); toggle.classList.remove('open'); toggle.setAttribute('aria-label', 'Menu'); };
   toggle.onclick = () => (isOpen ? close() : open());
+  toggle.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.onclick(); } });
   overlay.onclick = close;
   document.addEventListener('keydown', e => e.key === 'Escape' && (close(), closeDonateModal()));
   document.addEventListener('click', e => { const t = e.target.closest('[data-open-menu]'); if (t) { e.preventDefault(); open(); } });
