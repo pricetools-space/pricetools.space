@@ -71,6 +71,16 @@
             padding: 20px 12px;
             color: #fff;
         }
+        .result-wrapper {
+            width: 100%; text-align: center;
+        }
+        #total {
+            margin-top: 20px;
+            font-size: 20px; font-weight: bold; color: #fff;
+            min-height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -104,11 +114,15 @@
                 </div>
                 <div class="pct-container alloc-pct">0%</div>
             </div>
+            <div class="result-wrapper">
+                <div id="total"></div>
+            </div>
         </div>
     </div>
     <script>
         const amtIns = document.querySelectorAll('.alloc-amt');
         const pctEls = document.querySelectorAll('.alloc-pct');
+        const totalEl = document.getElementById('total');
 
         function fmtPct(n) {
             const rounded = Math.round(n * 10) / 10;
@@ -117,9 +131,15 @@
             return str;
         }
 
+        function fmtBtc(n) {
+            return (Math.round(n * 1e8) / 1e8).toLocaleString('en-US', { maximumFractionDigits: 8 });
+        }
+
         function calculate() {
             const amts = Array.from(amtIns).map(el => parseFloat(el.value.replace(/,/g, '')) || 0);
             const total = amts.reduce((a, b) => a + b, 0);
+            const hasEntry = Array.from(amtIns).some(el => el.value !== '');
+            totalEl.textContent = hasEntry ? 'Total: ₿' + fmtBtc(total) : '';
             amts.forEach((amt, i) => {
                 const pct = total > 0 ? (amt / total) * 100 : 0;
                 pctEls[i].textContent = fmtPct(pct) + '%';
