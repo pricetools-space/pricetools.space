@@ -43,7 +43,7 @@
       animation:pulse-glow 3s infinite ease-in-out;
       transition:color .6s ease, filter .6s ease;
     }
-    #menu-toggle:hover { color:#fff; filter:drop-shadow(0 0 14px rgba(255,255,255,0.8)); animation:none; }
+    #menu-toggle:hover { color:#ccc; filter:drop-shadow(0 0 5px rgba(255,255,255,0.22)); animation:none; }
     #menu-toggle:focus { outline:none; }
     #menu-toggle:focus-visible { outline:1px solid #555; border-radius:10px; }
     #menu-toggle .bar {
@@ -57,9 +57,9 @@
     #menu-toggle.open .bar2 { opacity:0; }
     #menu-toggle.open .bar3 { transform:rotate(-45deg); }
     @keyframes pulse-glow {
-      0% { color:#666; filter:drop-shadow(0 0 2px rgba(255,255,255,0)); }
-      50% { color:#aaa; filter:drop-shadow(0 0 10px rgba(255,255,255,0.45)); }
-      100% { color:#666; filter:drop-shadow(0 0 2px rgba(255,255,255,0)); }
+      0% { color:#666; filter:drop-shadow(0 0 0 rgba(255,255,255,0)); }
+      50% { color:#888; filter:drop-shadow(0 0 4px rgba(255,255,255,0.14)); }
+      100% { color:#666; filter:drop-shadow(0 0 0 rgba(255,255,255,0)); }
     }
     [data-open-menu] { cursor:pointer; }
     #donateModal {
