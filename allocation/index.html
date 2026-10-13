@@ -23,63 +23,131 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            min-height: 100dvh; background: #000; color: #fff;
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
             font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
+
         .content {
-            width: 100%; max-width: 480px;
-            margin-block: auto; padding: 0 1rem 2rem;
+            width: 100%;
+            max-width: 640px;
+            margin-block: auto;
+            padding: 0 1rem 2rem;
         }
+
         .converter {
-            display: flex; flex-direction: column;
-            gap: 12px; width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
         }
+
         .input-container {
             position: relative;
         }
+
         input {
             width: 100%;
-            background: #000; color: #fff;
+            background: #000;
+            color: #fff;
             border: 1px solid #555;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 20px;
             padding: 20px 12px;
             -webkit-appearance: none;
             appearance: none;
         }
-        input:hover, input:focus { background: #111; outline: none; }
-        .prefix {
-            position: absolute; left: 12px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px; pointer-events: none; opacity: 0.5;
+
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
         }
-        .row { display: flex; gap: 12px; }
-        .row .amt-container, .row .pct-container {
-            flex: 0 0 calc((100% - 12px) / 2);
+
+        .prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .row > div {
             min-width: 0;
         }
-        .amt-container input { padding-left: 32px; }
+
+        .amt-container input {
+            padding-left: 32px;
+        }
+
         .pct-container {
-            display: flex; align-items: center; justify-content: flex-end;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
             border: 1px solid #555;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 20px;
             padding: 20px 12px;
             color: #fff;
         }
-        .result-wrapper {
-            width: 100%; text-align: center;
+
+        @media (max-width: 480px) {
+            .row {
+                gap: 8px;
+            }
+
+            input, .prefix, .pct-container {
+                font-size: 18px;
+            }
+
+            input, .pct-container {
+                padding-inline: 8px;
+            }
+
+            .prefix {
+                left: 8px;
+            }
+
+            .amt-container input {
+                padding-left: 24px;
+            }
         }
+
+        .result-wrapper {
+            width: 100%;
+            text-align: center;
+        }
+
         #total {
             margin-top: 20px;
-            font-size: 20px; font-weight: bold; color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
             min-height: 28px;
-            display: flex; align-items: center; justify-content: center;
-            text-align: center; line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -87,6 +155,9 @@
     <div class="content">
         <div class="converter">
             <div class="row">
+                <div class="input-container name-container">
+                    <input type="text" class="alloc-name" placeholder="Stack 1" aria-label="Stack 1 name">
+                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
@@ -94,6 +165,9 @@
                 <div class="pct-container alloc-pct">0%</div>
             </div>
             <div class="row">
+                <div class="input-container name-container">
+                    <input type="text" class="alloc-name" placeholder="Stack 2" aria-label="Stack 2 name">
+                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
@@ -101,6 +175,9 @@
                 <div class="pct-container alloc-pct">0%</div>
             </div>
             <div class="row">
+                <div class="input-container name-container">
+                    <input type="text" class="alloc-name" placeholder="Stack 3" aria-label="Stack 3 name">
+                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
@@ -108,6 +185,9 @@
                 <div class="pct-container alloc-pct">0%</div>
             </div>
             <div class="row">
+                <div class="input-container name-container">
+                    <input type="text" class="alloc-name" placeholder="Stack 4" aria-label="Stack 4 name">
+                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">

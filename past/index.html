@@ -23,49 +23,134 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            min-height: 100dvh; background: #000; color: #fff;
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
             font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
-        .content { width: 100%; max-width: 360px; margin-block: auto; }
-        h1 { font-size: 32px; margin-bottom: 24px; text-align: center; }
-        .converter { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .date-container { display: flex; gap: 5px; width: 100%; }
-        .date-container select { flex: 1; text-align: center; text-align-last: center; }
-        .date-container select option { text-align: left; }
-        .input-container { position: relative; width: 100%; }
+
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .date-container {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .date-container select {
+            flex: 1;
+            text-align: center;
+            text-align-last: center;
+        }
+
+        .date-container select option {
+            text-align: left;
+        }
+
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+
         select, input, button {
-            width: 100%; background: #000; color: #fff;
-            border: 1px solid #555; border-radius: 10px;
-            font-size: 24px; padding: 20px 12px;
-            -webkit-appearance: none; appearance: none;
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
         }
-        .input-container input { padding-left: 32px; padding-right: 72px; }
+
+        .input-container input {
+            padding-left: 32px;
+            padding-right: 72px;
+        }
+
         select:hover, select:focus, input:hover, input:focus, button:hover, button:focus {
-            background: #111; outline: none;
+            background: #111;
+            outline: none;
         }
-        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
         .usd-container::before {
-            content: '$'; position: absolute; left: 12px; top: 50%;
-            transform: translateY(-50%); font-size: 24px;
+            content: '$';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
         }
+
         .usd-container::after {
-            content: 'max'; position: absolute; right: 18px; top: 50%;
-            transform: translateY(-50%); font-size: 24px;
-            opacity: 0; transition: opacity .2s;
+            content: 'max';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .2s;
         }
-        .usd-container.at-max::after { opacity: 1; }
-        .result-wrapper { width: 100%; min-height: 140px; text-align: center; }
+
+        .usd-container.at-max::after {
+            opacity: 1;
+        }
+
+        .result-wrapper {
+            width: 100%;
+            min-height: 140px;
+            text-align: center;
+        }
+
         #result {
-            margin-top: 20px; font-size: 20px; font-weight: bold;
-            color: #fff; min-height: 120px;
-            display: flex; align-items: center; justify-content: center;
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             line-height: 1.4;
         }
-        select option:disabled { display: none; }
+
+        select option:disabled {
+            display: none;
+        }
     </style>
 </head>
 <body>

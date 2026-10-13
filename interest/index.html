@@ -23,7 +23,12 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             min-height: 100dvh;
             background: #000;
@@ -34,6 +39,7 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .content {
             width: 100%;
             max-width: 360px;
@@ -41,8 +47,17 @@
             padding: 0 1rem;
             text-align: center;
         }
-        .converter { display: flex; flex-direction: column; gap: 10px; }
-        .input-container { position: relative; }
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
         input {
             width: 100%;
             background: #000;
@@ -52,7 +67,12 @@
             font-size: 24px;
             padding: 20px 20px 20px 32px;
         }
-        input:hover, input:focus { background: #111; outline: none; }
+
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
+        }
+
         .prefix {
             position: absolute;
             left: 12px;
@@ -61,6 +81,7 @@
             font-size: 24px;
             pointer-events: none;
         }
+
         .suffix {
             position: absolute;
             right: 12px;
@@ -73,11 +94,13 @@
             transition: opacity 0.2s;
             white-space: nowrap;
         }
+
         .top-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
+
         #period {
             width: 100%;
             background: #000;
@@ -91,9 +114,19 @@
             appearance: none;
             height: 100%;
         }
-        #period:hover, #period:focus { background-color: #111; outline: none; }
-        #yield::placeholder { color: #666; }
-        select option { text-align: center; }
+
+        #period:hover, #period:focus {
+            background-color: #111;
+            outline: none;
+        }
+
+        #yield::placeholder {
+            color: #666;
+        }
+
+        select option {
+            text-align: center;
+        }
     </style>
 </head>
 <body>

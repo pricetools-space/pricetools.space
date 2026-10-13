@@ -23,101 +23,119 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{
-            min-height:100dvh;
-            background:#000;
-            color:#fff;
-            font-family:system-ui,sans-serif;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:space-between
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .content{
-            width:100%;
-            max-width:360px;
-            margin-block:auto;
-            padding:0 1rem;
-            text-align:center
+
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui,sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
-        h1{
-            font-size:32px;
-            margin-bottom:24px
+
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem;
+            text-align: center;
         }
-        .converter{
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-            width:100%
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 24px;
         }
-        .input-container{
-            position:relative;
-            width:100%
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
         }
-        select,input{
-            width:100%;
-            background:#000;
-            color:#fff;
-            border:1px solid #555;
-            border-radius:10px;
-            font-size:24px;
-            padding:20px 12px;
-            -webkit-appearance:none;
-            appearance:none
+
+        .input-container {
+            position: relative;
+            width: 100%;
         }
-        .btc-container input{
-            padding-left:42px;
-            padding-right:82px
+
+        select,input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
         }
-        .percent-container input{
-            padding-left:18px;
-            padding-right:72px
+
+        .btc-container input {
+            padding-left: 42px;
+            padding-right: 82px;
         }
+
+        .percent-container input {
+            padding-left: 18px;
+            padding-right: 72px;
+        }
+
         select:hover,select:focus,
-        input:hover,input:focus{
-            background:#111;
-            outline:none
+        input:hover,input:focus {
+            background: #111;
+            outline: none;
         }
+
         input::-webkit-inner-spin-button,
-        input::-webkit-outer-spin-button{
-            -webkit-appearance:none
+        input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
         }
-        .btc-container::before{
-            content:"₿";
-            position:absolute;
-            left:16px;
-            top:50%;
-            transform:translateY(-50%);
-            font-size:28px
+
+        .btc-container::before {
+            content: "₿";
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
         }
-        .percent-container::after{
-            content:"%";
-            position:absolute;
-            right:18px;
-            top:50%;
-            transform:translateY(-50%);
-            font-size:24px;
-            opacity:0;
-            transition:opacity .2s;
-            pointer-events:none
+
+        .percent-container::after {
+            content: "%";
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .2s;
+            pointer-events: none;
         }
-        .btc-container::after{
-            content:"max";
-            position:absolute;
-            right:18px;
-            top:50%;
-            transform:translateY(-50%);
-            font-size:24px;
-            opacity:0;
-            transition:opacity .2s;
-            color:#aaa;
-            pointer-events:none
+
+        .btc-container::after {
+            content: "max";
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity .2s;
+            color: #aaa;
+            pointer-events: none;
         }
+
         .btc-container.at-max::after,
         .percent-container.at-max::after,
-        .percent-container.filled::after{
-            opacity:1
+        .percent-container.filled::after {
+            opacity: 1;
         }
     </style>
 </head>

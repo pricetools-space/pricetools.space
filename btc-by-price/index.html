@@ -23,7 +23,12 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             min-height: 100dvh;
             background: #000;
@@ -34,6 +39,7 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .content {
             width: 100%;
             max-width: 360px;
@@ -41,16 +47,19 @@
             padding: 0 1rem;
             text-align: center;
         }
+
         .converter {
             display: flex;
             flex-direction: column;
             gap: 10px;
             width: 100%;
         }
+
         .input-container {
             position: relative;
             width: 100%;
         }
+
         input {
             width: 100%;
             background: #000;
@@ -63,11 +72,28 @@
             -webkit-appearance: none;
             appearance: none;
         }
-        .input-container input { padding-left: 32px; }
-        .usd-container input { padding-right: 0; }
-        .sats-container input { padding-right: 72px; }
-        input:hover, input:focus { background: #111; outline: none; }
-        input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        .input-container input {
+            padding-left: 32px;
+        }
+
+        .usd-container input {
+            padding-right: 0;
+        }
+
+        .sats-container input {
+            padding-right: 72px;
+        }
+
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
+        }
+
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
         .btc-price::before,
         .usd-container::before {
             content: '$';
@@ -78,6 +104,7 @@
             font-size: 24px;
             pointer-events: none;
         }
+
         .input-container.btc-amount::before {
             content: '₿';
             position: absolute;
@@ -87,6 +114,7 @@
             font-size: 24px;
             pointer-events: none;
         }
+
         .sats-container::before, .sats-cost::before {
             content: '';
             position: absolute;
@@ -98,6 +126,7 @@
             background: url('/assets/images/sats.svg') center/contain no-repeat;
             pointer-events: none;
         }
+
         .btc-price::after {
             content: 'per bitcoin';
             position: absolute;
@@ -108,9 +137,11 @@
             color: #666;
             pointer-events: none;
         }
+
         .btc-price input {
             padding-right: 118px;
         }
+
         .sats-container::after {
             content: 'sats';
             position: absolute;
@@ -121,6 +152,7 @@
             opacity: 0;
             transition: opacity .2s;
         }
+
         .sats-container.filled::after {
             opacity: 1;
         }

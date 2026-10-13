@@ -23,7 +23,12 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             min-height: 100dvh;
             background: #000;
@@ -34,20 +39,29 @@
             align-items: center;
             justify-content: space-between;
         }
-        .content { width: 100%; max-width: 540px; margin-block: auto; padding: 2rem 2rem; }
+
+        .content {
+            width: 100%;
+            max-width: 560px;
+            margin-block: auto;
+            padding: 2rem 2rem;
+        }
+
         p {
             max-width: 100%;
             font-size: 16px;
             line-height: 1.5;
             text-align: justify;
-            word-break: break-word;
+            overflow-wrap: break-word;
+            -webkit-hyphens: auto;
             hyphens: auto;
             color: #777;
         }
-        p.tech {
-            color: #444;
-            font-size: 12px;
+
+        p + p {
+            margin-top: 1.5em;
         }
+
         .link {
             font-weight: 600;
             color: #aaa;
@@ -55,24 +69,19 @@
             cursor: pointer;
             transition: color .2s;
         }
-        .link:hover { color: #ddd; }
-        p.tech .link {
-            color: #555;
-        }
-        p.tech .link:hover {
-            color: #ccc;
-        }
-        hr {
-            border: none;
-            border-top: 0.25px solid #333;
-            margin: 30px 0;
+
+        .link:hover {
+            color: #ddd;
         }
     </style>
 </head>
 <body>
     <div class="content">
         <p>
-            pricetools.space is a free to use growing <a data-open-menu class="link">collection</a> of <a class="link" href="https://github.com/pricetools-space/pricetools.space" target="_blank">open source</a> bitcoin tools. No personal data is collected or stored. All <a class="link" href="https://pricetools.space/assets/data/bitcoin-current-data.csv" target="_blank">current</a> and <a class="link" href="https://pricetools.space/assets/data/bitcoin-data.csv" target="_blank">historical</a> prices are provided by <a class="link" href="https://mempool.space/docs/api/rest#get-price" target="_blank">mempool.space</a>. For any questions or suggestions, send me a <a class="link" href="mailto:pricetools.stainless189@passinbox.com">message</a>. If these tools are useful to you, please <a class="link" href="#" onclick="openDonateModal(event)">send a tip</a> of any amount.
+            pricetools.space is a growing <a data-open-menu class="link">collection</a> of free, <a class="link" href="https://github.com/pricetools-space/pricetools.space" target="_blank">open-source</a> bitcoin tools. No personal data is collected or stored. All <a class="link" href="https://pricetools.space/assets/data/bitcoin-current-data.csv" target="_blank">current</a> and <a class="link" href="https://pricetools.space/assets/data/bitcoin-data.csv" target="_blank">historical</a> prices are provided by <a class="link" href="https://mempool.space/docs/api/rest#get-price" target="_blank">mempool.space</a>. For any questions or suggestions, send me a <a class="link" href="mailto:pricetools.stainless189@passinbox.com">message</a>. If these tools are useful to you, please <a class="link" href="#" onclick="openDonateModal(event)">send a tip</a> of any amount.
+        </p>
+        <p>
+            <a class="link" href="mailto:pricetools.stainless189@passinbox.com">Reach out</a> if you need a custom website, calculator, or tool for your business or project.
         </p>
     </div>
 

@@ -29,6 +29,7 @@
             margin: 0;
             padding: 0;
         }
+
         body {
             min-height: 100dvh;
             background: #000;
@@ -39,26 +40,31 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .content {
             width: 100%;
             max-width: 360px;
             margin-block: auto;
         }
+
         .converter {
             display: flex;
             flex-direction: column;
             gap: 10px;
             width: 100%;
         }
+
         .row {
             display: flex;
             gap: 8px;
             width: 100%;
         }
+
         .row > * {
             flex: 1;
             min-width: 0;
         }
+
         .year-container,
         .percent-container,
         .mode-container,
@@ -66,6 +72,7 @@
             position: relative;
             flex: 1;
         }
+
         input,
         select,
         button {
@@ -79,11 +86,13 @@
             -webkit-appearance: none;
             appearance: none;
         }
+
         select {
             text-align: center;
             text-align-last: center;
             padding: 20px 12px;
         }
+
         .input-container::before {
             content: attr(data-prefix);
             position: absolute;
@@ -94,6 +103,7 @@
             pointer-events: none;
             color: #fff;
         }
+
         .percent-container::after {
             content: '%';
             position: absolute;
@@ -104,15 +114,18 @@
             color: #aaa;
             pointer-events: none;
         }
+
         .input-container input {
             padding-left: 32px;
             padding-right: 12px;
         }
+
         .percent-container input {
             padding-left: 20px;
             padding-right: 36px;
             text-align: center;
         }
+
         input:hover,
         input:focus,
         select:hover,
@@ -122,17 +135,21 @@
             background: #111;
             outline: none;
         }
+
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
         }
+
         button {
             cursor: pointer;
         }
+
         .result-wrapper {
             width: 100%;
             min-height: 140px;
             text-align: center;
         }
+
         #result {
             margin-top: 20px;
             font-size: 20px;

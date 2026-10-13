@@ -23,58 +23,112 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
     <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            min-height: 100dvh; background: #000; color: #fff;
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
             font-family: system-ui, sans-serif;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
+
         .content {
-            width: 100%; max-width: 360px;
-            margin-block: auto; padding: 0 1rem 2rem;
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem 2rem;
         }
+
         .converter {
-            display: flex; flex-direction: column;
-            gap: 12px; width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
         }
+
         .input-container {
             position: relative;
         }
+
         input {
             width: 100%;
-            background: #000; color: #fff;
+            background: #000;
+            color: #fff;
             border: 1px solid #555;
             border-radius: 10px;
             font-size: 24px;
             line-height: 28px;
             padding: 20px 32px 20px 32px;
         }
-        .btc-price input { padding-right: 114px; }
-        .loan-amount input { padding-right: 62px; }
-        .collateral input { padding-right: 100px; }
-        input:hover, input:focus { background: #111; outline: none; }
-        .prefix {
-            position: absolute; left: 12px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px; pointer-events: none;
+
+        .btc-price input {
+            padding-right: 114px;
         }
-        .suffix {
-            position: absolute; right: 12px; top: 50%;
+
+        .loan-amount input {
+            padding-right: 62px;
+        }
+
+        .collateral input {
+            padding-right: 100px;
+        }
+
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
             transform: translateY(-50%);
-            font-size: 20px; pointer-events: none;
-            color: #aaa; opacity: 0; transition: opacity 0.2s;
+            font-size: 24px;
+            pointer-events: none;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            pointer-events: none;
+            color: #aaa;
+            opacity: 0;
+            transition: opacity 0.2s;
             padding-left: 12px;
         }
-        .btc-price .suffix { opacity: 1; }
-        .filled .suffix { opacity: 1; }
-        .result-wrapper {
-            width: 100%; min-height: 140px; margin-top: 24px;
-            text-align: left; font-size: 18px;
-            line-height: 1.4; color: #fff;
+
+        .btc-price .suffix {
+            opacity: 1;
         }
+
+        .filled .suffix {
+            opacity: 1;
+        }
+
+        .result-wrapper {
+            width: 100%;
+            min-height: 140px;
+            margin-top: 24px;
+            text-align: left;
+            font-size: 18px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
         .result-wrapper strong {
-            color: #fff; font-weight: 600;
+            color: #fff;
+            font-weight: 600;
         }
     </style>
 </head>
