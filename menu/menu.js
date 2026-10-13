@@ -359,7 +359,7 @@
           <div class="menu-about">
             <a href="/about">About</a>
             <div class="about-separator"></div>
-            <a id="cheers-link" href="#" onclick="openDonateModal(event)">Cheers</a>
+            <a id="cheers-link" href="#" onclick="openDonateModal(event)">Tips</a>
           </div>
           <div class="menu-items">
             <a href="/">USD to BTC</a>
