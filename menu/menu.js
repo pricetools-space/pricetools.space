@@ -253,7 +253,81 @@
             justify-content: center;
         }
 
+        #donateModal .tips-flash {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            animation: tips-flash .7s linear both;
+            transform: translateZ(0);
+        }
+
+        @keyframes tips-flash {
+            0% { opacity: 0; }
+            4% { opacity: .055; }
+            10% { opacity: .008; }
+            15% { opacity: .035; }
+            30%, 100% { opacity: 0; }
+        }
+
+        .tips-lightning {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 12px rgba(255,255,255,.9)) drop-shadow(0 0 32px rgba(255,255,255,.65));
+            animation: tips-strike .7s linear both;
+        }
+
+        @keyframes tips-flash-mobile {
+            0% { opacity: 0; }
+            4%, 8% { opacity: .1; }
+            12% { opacity: .005; }
+            16%, 20% { opacity: .07; }
+            32%, 100% { opacity: 0; }
+        }
+
+        @keyframes tips-strike-mobile {
+            0% { opacity: 0; }
+            3% { opacity: .9; }
+            11% { opacity: .7; }
+            18% { opacity: .3; }
+            40% { opacity: .18; }
+            65% { opacity: .07; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            #donateModal .tips-flash {
+                animation-name: tips-flash-mobile;
+                animation-delay: .06s;
+            }
+            .tips-lightning {
+                animation-name: tips-strike-mobile;
+                animation-duration: .95s;
+                animation-delay: .06s;
+            }
+        }
+
+        @keyframes tips-strike {
+            0% { opacity: 0; }
+            4% { opacity: .9; }
+            10% { opacity: .12; }
+            15% { opacity: .7; }
+            24% { opacity: .18; }
+            45% { opacity: .07; }
+            100% { opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #donateModal .tips-flash, .tips-lightning { animation: none; }
+        }
+
         .modal-content {
+            position: relative;
             background: #000;
             border: 1px solid #555;
             border-radius: 12px;
@@ -344,6 +418,23 @@
             background: #222;
         }
 
+        @media (max-width: 600px) {
+            #donateModal .modal-content {
+                width: 82%;
+                max-width: 340px;
+                padding: 1.7rem 1rem 1.3rem;
+            }
+
+            #donateModal h3 { margin-bottom: 1rem; }
+            #donateModal .modal-text { margin-bottom: 1.2rem; }
+            #donateModal .qr {
+                width: 180px;
+                height: 180px;
+                margin: 0 auto 1.4rem;
+            }
+            #donateModal .modal-close { margin-top: 1rem; }
+        }
+
         @media(min-width:768px) {
             .menu-content {
                 max-width: 400px;
@@ -384,6 +475,12 @@
       <a id="menu-toggle" role="button" tabindex="0" aria-label="Menu">${toggleBars}</a>
     </div>
     <div id="donateModal" onclick="closeDonateModal()">
+      <div class="tips-flash" aria-hidden="true"></div>
+      <svg class="tips-lightning" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M610 -10 L568 105 L585 139 L527 235 L553 260 L478 398 L512 429 L443 568 L475 594 L429 729 L455 752 L395 1010" fill="none" stroke="white" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M568 105 L642 157 L672 236 M429 729 L369 773 L349 859 M590 45 L551 65 L545 87 L523 102 M600 17 L625 34 L620 51 L659 71 L672 98 M418 910 L454 934 L447 954 L483 984 M406 963 L382 978 L364 973 L339 1008" fill="none" stroke="white" stroke-opacity=".55" stroke-width=".75" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M551 65 L520 57 L494 69 L468 65 M642 157 L667 146 L698 163 L713 160 M620 51 L589 68 L584 83 M369 773 L338 782 L325 808 L296 820 M454 934 L482 923 L495 944 L521 949" fill="none" stroke="white" stroke-opacity=".3" stroke-width=".4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
       <div class="modal-content" onclick="event.stopPropagation()">
         <h3>Tip any amount</h3>
         <p class="modal-text">Lightning: pricetools@getalby.com</p>
