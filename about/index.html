@@ -42,7 +42,7 @@
 
         .content {
             width: 100%;
-            max-width: 560px;
+            max-width: 540px;
             margin-block: auto;
             padding: 2rem 2rem;
         }
@@ -52,14 +52,19 @@
             font-size: 16px;
             line-height: 1.5;
             text-align: justify;
+            text-wrap: wrap;
+            -webkit-hyphens: none;
+            hyphens: none;
             overflow-wrap: break-word;
-            -webkit-hyphens: auto;
-            hyphens: auto;
             color: #777;
         }
 
         p + p {
-            margin-top: 1.5em;
+            margin-top: 24px;
+            font-size: 16px;
+            color: #555;
+            -webkit-hyphens: auto;
+            hyphens: auto;
         }
 
         .link {
@@ -72,6 +77,14 @@
 
         .link:hover {
             color: #ddd;
+        }
+
+        p + p .link {
+            color: #777;
+        }
+
+        p + p .link:hover {
+            color: #888;
         }
     </style>
 </head>
