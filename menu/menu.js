@@ -291,6 +291,10 @@
             animation: tips-strike .7s linear both;
         }
 
+        .tips-lightning.mirrored {
+            transform: scaleX(-1);
+        }
+
         @keyframes tips-flash-mobile {
             0% {
                 opacity: 0;
@@ -603,7 +607,7 @@
                 />
             </svg>
             <div class="modal-content" onclick="event.stopPropagation()">
-                <h3>Tips of any amount appreciated</h3>
+                <h3>Tips of any amount are appreciated</h3>
                 <p class="modal-text">Lightning: pricetools@getalby.com</p>
                 <img src="/assets/images/qr-donate.svg" alt="Lightning QR" class="qr">
                 <button
@@ -628,9 +632,24 @@
     const toggle = document.getElementById('menu-toggle');
     const donateModal = document.getElementById('donateModal');
     const copyButton = donateModal.querySelector('.copy-btn');
+    const lightning = donateModal.querySelector('.tips-lightning');
+    const flash = donateModal.querySelector('.tips-flash');
     let copyResetTimer;
 
+    const playLightning = (direction = 0) => {
+        lightning.classList.toggle('mirrored', direction === 1);
+        lightning.querySelectorAll('path').forEach(path => {
+            path.setAttribute('transform', direction === 2 ? 'matrix(1 0 .21 1 -108 0)' : '');
+        });
+        lightning.style.animation = 'none';
+        flash.style.animation = 'none';
+        void donateModal.offsetWidth;
+        lightning.style.animation = '';
+        flash.style.animation = '';
+    };
+
     copyButton.onclick = async () => {
+        playLightning(Math.floor(Math.random() * 3));
         clearTimeout(copyResetTimer);
         copyButton.disabled = true;
 
@@ -699,6 +718,7 @@
     window.openDonateModal = function(e) {
         if (e) e.preventDefault();
         donateModal.style.display = 'flex';
+        playLightning();
     };
 
     window.closeDonateModal = function() {

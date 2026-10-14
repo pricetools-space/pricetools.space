@@ -126,6 +126,18 @@
             text-align: center;
         }
 
+        .percent-container input::placeholder {
+            font-size: 16px;
+        }
+
+        .percent-container:has(input:placeholder-shown)::after {
+            content: '';
+        }
+
+        .percent-container input:placeholder-shown {
+            padding-inline: 12px;
+        }
+
         input:hover,
         input:focus,
         select:hover,
@@ -174,7 +186,7 @@
                     </select>
                 </div>
                 <div class="percent-container">
-                    <input type="tel" id="returnRate" value="60" maxlength="4">
+                    <input type="tel" id="returnRate" placeholder="Annual Growth %" inputmode="decimal" maxlength="4">
                 </div>
             </div>
             <div class="row">
@@ -188,7 +200,7 @@
                     <input type="tel" inputmode="decimal" id="amount" placeholder="Amount">
                 </div>
             </div>
-            <button onclick="calculate()">What will it be worth?</button>
+            <button onclick="calculate()">Projected Value</button>
             <div class="result-wrapper">
                 <div id="result"></div>
             </div>

@@ -181,6 +181,7 @@
         let priceMap = null;
         let currentPriceUSD = 0;
         let selectedPriceUSD = 0;
+        let animationInterval = null;
         const TOTAL_SUPPLY = 21000000;
         const usdContainer = document.getElementById('usdContainer');
 
@@ -286,38 +287,50 @@
                 const nowStr = fmtBig(cur);
                 el.textContent = usdStr + ' of Bitcoin on ' + dateStr + ' is worth ' + nowStr + ' today.';
             };
-            const id = setInterval(()=>{
+            animationInterval = setInterval(()=>{
                 cur += inc;
                 if((inc>0&&cur>=end)||(inc<0&&cur<=end)){ 
                     cur = end; 
-                    clearInterval(id); 
+                    clearInterval(animationInterval);
+                    animationInterval = null;
                 }
                 update();
             },step);
             update();
         }
 
-        window.getPrice = ()=>{
-            const y=document.getElementById('year').value;
-            const m=document.getElementById('month').value;
-            const d=document.getElementById('day').value;
-            const raw=document.getElementById('usdAmount').value.trim();
-            const res=document.getElementById('result');
-            if(!y||!m||!d||!raw){
-                res.textContent='Select a date and enter USD amount';
+        window.getPrice = () => {
+            clearInterval(animationInterval);
+            animationInterval = null;
+            const y = document.getElementById('year').value;
+            const m = document.getElementById('month').value;
+            const d = document.getElementById('day').value;
+            const raw = document.getElementById('usdAmount').value.trim();
+            const res = document.getElementById('result');
+            const key = `${y}-${m}-${d}`;
+            const selected = new Date(Number(y), Number(m) - 1, Number(d));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const historicalPrice = priceMap?.[key];
+            const validDate = y && m && d &&
+                selected.getFullYear() === Number(y) &&
+                selected.getMonth() === Number(m) - 1 &&
+                selected.getDate() === Number(d) &&
+                selected < today &&
+                Number.isFinite(historicalPrice) && historicalPrice > 0;
+
+            if (!validDate) {
+                res.textContent = 'Please enter a valid date';
                 return;
             }
-            const selected = new Date(`${y}-${m}-${d}`);
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate()-1);
-            if(selected > yesterday){
-                res.textContent='Please enter a date on or before yesterday';
+            if (!raw) {
+                res.textContent = 'Select a date and enter USD amount';
                 return;
             }
-            const usd = parseFloat(raw.replace(/,/g,''));
-            const btc = usd / (priceMap[`${y}-${m}-${d}`] || currentPriceUSD);
+            const usd = parseFloat(raw.replace(/,/g, ''));
+            const btc = usd / historicalPrice;
             const now = btc * currentPriceUSD;
-            const dateStr = fmtDate(m,d,y);
+            const dateStr = fmtDate(m, d, y);
             animate(usd, now, res, usd, dateStr);
         };
     </script>

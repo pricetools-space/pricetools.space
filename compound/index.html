@@ -76,6 +76,16 @@
             padding-left: 32px;
         }
 
+        #add::placeholder {
+            font-size: 18px;
+        }
+
+        @media (max-width: 360px) {
+            #add::placeholder {
+                font-size: 16px;
+            }
+        }
+
         select {
             padding: 20px 12px;
             text-align: center;
@@ -83,11 +93,26 @@
         }
 
         .rate-container input {
-            padding-right: 211px;
+            padding-left: 12px;
+            padding-right: 36px;
+            text-align: center;
+        }
+
+        .rate-container input:placeholder-shown {
+            padding-inline: 12px;
+        }
+
+        .rate-container:has(input:placeholder-shown) .suffix {
+            opacity: 0;
         }
 
         .years-container input {
-            padding-right: 84px;
+            padding-left: 12px;
+            padding-right: 78px;
+        }
+
+        .years-container input:placeholder-shown {
+            padding-right: 12px;
         }
 
         input:hover, input:focus, select:hover, select:focus {
@@ -143,6 +168,7 @@
         }
 
         #rate::placeholder {
+            font-size: 16px;
             color: #666;
             opacity: 1;
         }
@@ -162,10 +188,18 @@
         .row {
             display: flex;
             gap: 10px;
+            width: 100%;
         }
 
         .row > .input-container {
             flex: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 360px) {
+            #rate::placeholder {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -175,28 +209,31 @@
             <div class="row">
                 <div class="input-container">
                     <span class="prefix">$</span>
-                    <input type="tel" id="add" placeholder="Amount">
+                    <input type="tel" id="add" placeholder="Contribution">
                 </div>
                 <div class="input-container">
-                    <select id="freq">
+                    <select id="freq" required>
+                        <option value="" disabled selected>Frequency</option>
                         <option value="daily">daily</option>
-                        <option value="weekly" selected>weekly</option>
+                        <option value="weekly">weekly</option>
                         <option value="monthly">monthly</option>
+                        <option value="yearly">yearly</option>
                     </select>
                 </div>
             </div>
 
-            <div class="input-container rate-container">
-                <input type="tel" id="rate" value="60" placeholder="0">
-                <span class="suffix">(%) annual returns</span>
+            <div class="row">
+                <div class="input-container rate-container">
+                    <input type="tel" id="rate" placeholder="Annual Returns %">
+                    <span class="suffix">%</span>
+                </div>
+                <div class="input-container years-container">
+                    <input type="number" id="years" placeholder="Years" min="0">
+                    <span class="suffix" id="years-suffix">years</span>
+                </div>
             </div>
 
-            <div class="input-container years-container">
-                <input type="number" id="years" placeholder="Years" min="0">
-                <span class="suffix" id="years-suffix">years</span>
-            </div>
-
-            <input type="text" id="result" placeholder="Future Value" readonly>
+            <input type="text" id="result" placeholder="Projected Value" readonly>
         </div>
     </div>
 
@@ -346,13 +383,14 @@
                 yearsSuffix.textContent = years === 1 ? 'year' : 'years';
             }
 
-            if (add === 0 || !hasYears) {
+            if (add === 0 || !hasYears || !freqSel.value || !rateIn.value.trim()) {
                 resultIn.value = '';
                 return;
             }
 
             const periodsPerYear = freqSel.value === 'daily' ? 365 :
-                                  freqSel.value === 'weekly' ? 52 : 12;
+                                  freqSel.value === 'weekly' ? 52 :
+                                  freqSel.value === 'monthly' ? 12 : 1;
             const totalPeriods = years * periodsPerYear;
             const periodicRate = annualRate / periodsPerYear;
 
