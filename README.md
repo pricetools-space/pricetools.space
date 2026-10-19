@@ -1,6 +1,6 @@
 # pricetools.space
 
-[Use pricetools.space](https://pricetools.space/)
+[pricetools.space](https://pricetools.space/)
 
 Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical purchase value tracker, price projection modeler, compound growth, lending & interest tools, and mining calculation tools. 100% static site, no trackers, no cookies, no personal data collected.
 
