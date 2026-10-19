@@ -1,5 +1,7 @@
 # pricetools.space
 
+[Use pricetools.space](https://pricetools.space/)
+
 Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical purchase value tracker, price projection modeler, compound growth, lending & interest tools, and mining calculation tools. 100% static site, no trackers, no cookies, no personal data collected.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -15,7 +17,7 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 ## Setup & Usage
 1. Download all files/folders from this repo.
 2. Upload everything to your web host root (e.g., via FTP/FileZilla to `/public_html/` or equivalent).
-3. Open `index.html` — fully client-side, works offline after first load.
+3. Visit your hosted site. Calculations run in your browser; price and mining data require access to the hosted data files and server-side update scripts.
 
 ## Data Updates
 - `update-btc.sh`: Daily fetch of yesterday's close price (appends to `/assets/data/bitcoin-data.csv`).
