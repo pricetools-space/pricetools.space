@@ -28,4 +28,4 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 - Current price example: `*/10 * * * * /bin/bash /home/YOURUSERNAMEHERE/pricetools.space/assets/scripts/update-btc-current.sh > /dev/null 2>&1`
 
 ## License
-MIT © pricetools-space — free to use, modify, and distribute.
+MIT © pricetools.space
