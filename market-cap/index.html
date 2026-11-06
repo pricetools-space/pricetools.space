@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Cap</title>
+    <meta name="description" content="Convert Bitcoin market capitalization in USD trillions to price per bitcoin using a fixed 21 million supply.">
+    <link rel="canonical" href="https://pricetools.space/market-cap">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Market Cap">
+    <meta property="og:description" content="Convert Bitcoin market capitalization in USD trillions to price per bitcoin using a fixed 21 million supply.">
+    <meta property="og:url" content="https://pricetools.space/market-cap">
+    <meta property="og:image" content="https://pricetools.space/assets/images/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Market Cap">
+    <meta name="twitter:description" content="Convert Bitcoin market capitalization in USD trillions to price per bitcoin using a fixed 21 million supply.">
+    <meta name="twitter:image" content="https://pricetools.space/assets/images/preview.png">
+    <link rel="icon" type="image/png" href="/assets/favicon-files/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-files/favicon.svg">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
+    <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 360px;
+            margin-block: auto;
+            padding: 0 1rem;
+        }
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-size: 24px;
+            line-height: 28px;
+            padding: 20px 32px 20px 32px;
+        }
+
+        .btc-price input {
+            padding-right: 114px;
+        }
+
+        .market-cap input {
+            padding-right: 186px;
+        }
+
+        input:hover, input:focus {
+            background: #111;
+            outline: none;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            pointer-events: none;
+            color: #aaa;
+            padding-left: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="input-container market-cap">
+                <span class="prefix" aria-hidden="true">$</span>
+                <input type="text" inputmode="decimal" id="marketCap" aria-label="Market capitalization in USD trillions" placeholder="&#160;" autocomplete="off">
+                <span class="suffix" aria-hidden="true">trillion market cap</span>
+            </div>
+            <div class="input-container btc-price">
+                <span class="prefix" aria-hidden="true">$</span>
+                <input type="text" inputmode="decimal" id="btcPrice" aria-label="USD price per bitcoin" placeholder="&#160;" autocomplete="off">
+                <span class="suffix" aria-hidden="true">per bitcoin</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        const supply = 21000000;
+        const trillion = 1000000000000;
+        const marketCap = document.getElementById('marketCap');
+        const btcPrice = document.getElementById('btcPrice');
+
+        function format(value, decimals) {
+            return value.toLocaleString('en-US', { maximumFractionDigits: decimals });
+        }
+
+        function synchronize(source, target, multiplier, decimals) {
+            const cleaned = source.value.replace(/[^0-9.]/g, '');
+            const [integer, ...fraction] = cleaned.split('.');
+            const decimal = fraction.join('').slice(0, 2);
+            const grouped = integer ? Number(integer).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '';
+            source.value = fraction.length ? `${grouped}.${decimal}` : grouped;
+            const value = Number(source.value.replace(/,/g, ''));
+            const result = value * multiplier;
+            target.value = source.value && source.value !== '.' && Number.isFinite(result)
+                ? format(result, decimals)
+                : '';
+        }
+
+        marketCap.addEventListener('input', () => {
+            synchronize(marketCap, btcPrice, trillion / supply, 2);
+        });
+
+        btcPrice.addEventListener('input', () => {
+            synchronize(btcPrice, marketCap, supply / trillion, 2);
+        });
+
+        async function loadPrice() {
+            try {
+                const response = await fetch('/assets/data/bitcoin-current-data.csv?t=' + Date.now());
+                if (!response.ok) return;
+                const text = await response.text();
+                const line = text.split('\n').find(row => row.trim());
+                const price = Number(line?.split(',')[1]);
+                if (Number.isFinite(price) && price > 0) {
+                    btcPrice.placeholder = format(price, 2);
+                    marketCap.placeholder = format(price * supply / trillion, 2);
+                }
+            } catch {}
+        }
+
+        loadPrice();
+        setInterval(loadPrice, 5 * 60 * 1000);
+    </script>
+    <script src="/menu/menu.js"></script>
+</body>
+</html>

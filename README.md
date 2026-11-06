@@ -12,6 +12,7 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 - **Price History Tool**: Track current value of past purchases by date or range; view historical prices.
 - **Price Projection Tool**: Model future prices based on selected growth rate.
 - **Allocation Tool**: Split bitcoin holdings into stacks and see the percentage of each.
+- **Market Cap Tool**: Convert USD trillions to price per bitcoin using a fixed 21 million supply.
 - **More Tools**: Compound growth, lending & interest calculators, mining stats, total BTC supply.
 
 ## Setup & Usage

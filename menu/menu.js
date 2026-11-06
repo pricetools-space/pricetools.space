@@ -560,6 +560,7 @@
                         <a href="/mining">Mining</a>
                         <a href="/interest">Interest</a>
                         <a href="/lending">Lending</a>
+                        <a href="/market-cap">Market Cap</a>
                     </div>
                 </div>
             </div>
