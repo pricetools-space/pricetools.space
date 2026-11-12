@@ -166,7 +166,7 @@
             opacity: 1;
         }
 
-        #result {
+        #result, #result-usd {
             width: 100%;
             background: #000;
             color: #fff;
@@ -223,7 +223,8 @@
                 </div>
             </div>
 
-            <input type="text" id="result" placeholder="Projected Amount" aria-label="Projected accumulated BTC" aria-live="polite" readonly>
+            <input type="text" id="result" placeholder="Projected Amount (Bitcoin)" aria-label="Projected accumulated BTC" aria-live="polite" readonly>
+            <input type="text" id="result-usd" placeholder="Projected Amount (USD)" aria-label="Projected USD value" aria-live="polite" readonly>
         </div>
     </div>
 
@@ -235,6 +236,7 @@
         const yearsIn      = document.getElementById('years');
         const freqSel      = document.getElementById('freq');
         const resultIn     = document.getElementById('result');
+        const usdResultIn = document.getElementById('result-usd');
         const yearsContainer = document.querySelector('.years-container');
         const yearsSuffix  = document.getElementById('years-suffix');
 
@@ -262,7 +264,9 @@
             yearsContainer.classList.toggle('filled', yearsText !== '');
             yearsSuffix.textContent = years === 1 ? 'year' : 'years';
             resultIn.value = '';
-            resultIn.placeholder = 'Projected Amount';
+            resultIn.placeholder = 'Projected Amount (Bitcoin)';
+            usdResultIn.value = '';
+            usdResultIn.placeholder = 'Projected Amount (USD)';
 
             if (!addIn.value.trim() || !rateText || !yearsText || !frequency) {
                 return;
@@ -279,10 +283,20 @@
             }
 
             const btc = calculateBTC(contribution, annualRate, years, frequency, currentPriceUSD);
-            resultIn.value = Number.isFinite(btc) ? btc.toLocaleString('en-US', {
+            resultIn.value = Number.isFinite(btc) ? '₿' + btc.toLocaleString('en-US', {
                 minimumFractionDigits: 8,
                 maximumFractionDigits: 8
-            }) + ' BTC' : '';
+            }) : '';
+            const usd = btc === 0 ? 0 : btc * currentPriceUSD * Math.exp(Math.log1p(annualRate) * years);
+            if (Number.isFinite(usd)) {
+                usdResultIn.value = usd.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 2
+                });
+            } else {
+                usdResultIn.placeholder = 'Result too large';
+            }
             if (!Number.isFinite(btc)) {
                 resultIn.placeholder = 'Result too large';
             }

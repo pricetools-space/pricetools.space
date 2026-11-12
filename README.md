@@ -11,7 +11,7 @@ Simple, real-time Bitcoin price tools: USD to BTC/Sats converter, historical pur
 - **Currency Converters**: GBP and EUR to Sats.
 - **Price History Tool**: Compare past and current dollar values from a USD or bitcoin amount and a selected date.
 - **Price Projection Tool**: Model future prices based on selected growth rate.
-- **DCA Calculator**: Project accumulated bitcoin from recurring dollar purchases at a chosen annual price return.
+- **DCA Calculator**: Project accumulated bitcoin and its future USD value from recurring dollar purchases at a chosen annual price return.
 - **Allocation Tool**: Split bitcoin holdings into stacks and see the percentage of each.
 - **Market Cap Tool**: Convert USD trillions to price per bitcoin using a fixed 21 million supply.
 - **More Tools**: Compound growth, lending & interest calculators, mining stats, total BTC supply.

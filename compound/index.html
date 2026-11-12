@@ -381,13 +381,13 @@
                                   freqSel.value === 'weekly' ? 52 :
                                   freqSel.value === 'monthly' ? 12 : 1;
             const totalPeriods = years * periodsPerYear;
-            const periodicRate = annualRate / periodsPerYear;
+            const periodGrowth = Math.log1p(annualRate) / periodsPerYear;
 
             let futureAdd;
             if (annualRate === 0) {
                 futureAdd = add * totalPeriods;
             } else {
-                futureAdd = add * ((Math.pow(1 + periodicRate, totalPeriods) - 1) / periodicRate);
+                futureAdd = add * Math.expm1(totalPeriods * periodGrowth) / Math.expm1(periodGrowth) * Math.exp(periodGrowth);
             }
             const rounded = Math.round(futureAdd);
             const formatted = fmtBig(rounded);
