@@ -554,13 +554,14 @@
                         <a href="/btc-by-date">BTC by Date</a>
                         <a href="/gbp-to-sats">GBP to Sats</a>
                         <a href="/eur-to-sats">EUR to Sats</a>
-                        <a href="/allocation">Allocation</a>
-                        <a href="/supply">Total Supply</a>
                         <a href="/compound">Compound</a>
+                        <a href="/dca">DCA</a>
+                        <a href="/supply">Total Supply</a>
+                        <a href="/market-cap">Market Cap</a>
+                        <a href="/allocation">Allocation</a>
                         <a href="/mining">Mining</a>
                         <a href="/interest">Interest</a>
                         <a href="/lending">Lending</a>
-                        <a href="/market-cap">Market Cap</a>
                     </div>
                 </div>
             </div>

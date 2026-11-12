@@ -42,7 +42,7 @@
 
         .content {
             width: 100%;
-            max-width: 360px;
+            max-width: 420px;
             margin: auto;
             padding: 0 1rem;
             text-align: center;
@@ -66,7 +66,9 @@
             color: #fff;
             border: 1px solid #555;
             border-radius: 10px;
+            font-family: inherit;
             font-size: 24px;
+            height: 70px;
             padding: 20px 12px;
             -webkit-appearance: none;
             appearance: none;
@@ -76,26 +78,16 @@
             padding-left: 32px;
         }
 
-        #add::placeholder {
-            font-size: 18px;
-        }
-
-        @media (max-width: 360px) {
-            #add::placeholder {
-                font-size: 16px;
-            }
-        }
-
         select {
             padding: 20px 12px;
-            text-align: center;
-            text-align-last: center;
+            text-align: left;
+            text-align-last: left;
         }
 
         .rate-container input {
             padding-left: 12px;
             padding-right: 36px;
-            text-align: center;
+            text-align: left;
         }
 
         .rate-container input:placeholder-shown {
@@ -108,7 +100,7 @@
 
         .years-container input {
             padding-left: 12px;
-            padding-right: 78px;
+            padding-right: 64px;
         }
 
         .years-container input:placeholder-shown {
@@ -145,7 +137,7 @@
         }
 
         .suffix {
-            right: 18px;
+            right: 12px;
             opacity: 0.5;
             color: #fff;
             transition: opacity .2s;
@@ -168,7 +160,7 @@
         }
 
         #rate::placeholder {
-            font-size: 16px;
+            font-size: 24px;
             color: #666;
             opacity: 1;
         }
@@ -179,7 +171,9 @@
             color: #fff;
             border: 1px solid #555;
             border-radius: 10px;
+            font-family: inherit;
             font-size: 24px;
+            height: 70px;
             padding: 20px 12px;
             text-align: center;
             align-self: center;
@@ -196,11 +190,6 @@
             min-width: 0;
         }
 
-        @media (max-width: 360px) {
-            #rate::placeholder {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -224,7 +213,7 @@
 
             <div class="row">
                 <div class="input-container rate-container">
-                    <input type="tel" id="rate" placeholder="Annual Returns %">
+                    <input type="tel" id="rate" placeholder="Annual Return">
                     <span class="suffix">%</span>
                 </div>
                 <div class="input-container years-container">

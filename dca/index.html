@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCA</title>
+    <meta name="description" content="Project accumulated bitcoin from recurring dollar purchases at a chosen annual price return.">
+    <link rel="canonical" href="https://pricetools.space/dca">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DCA">
+    <meta property="og:description" content="Project accumulated bitcoin from recurring dollar purchases at a chosen annual price return.">
+    <meta property="og:url" content="https://pricetools.space/dca">
+    <meta property="og:image" content="https://pricetools.space/assets/images/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DCA">
+    <meta name="twitter:description" content="Project accumulated bitcoin from recurring dollar purchases at a chosen annual price return.">
+    <meta name="twitter:image" content="https://pricetools.space/assets/images/preview.png">
+    <link rel="icon" type="image/png" href="/assets/favicon-files/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-files/favicon.svg">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-files/apple-touch-icon.png">
+    <link rel="manifest" href="/assets/favicon-files/site.webmanifest">
+    <link rel="preload" href="/assets/data/bitcoin-current-data.csv" as="fetch" crossorigin="anonymous">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100dvh;
+            background: #000;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 420px;
+            margin: auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        input, select {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 24px;
+            height: 70px;
+            padding: 20px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input {
+            padding-left: 32px;
+        }
+
+        select {
+            padding: 20px 12px;
+            text-align: left;
+            text-align-last: left;
+        }
+
+        .rate-container input {
+            padding-left: 12px;
+            padding-right: 36px;
+            text-align: left;
+        }
+
+        .rate-container input:placeholder-shown {
+            padding-inline: 12px;
+        }
+
+        .rate-container:has(input:placeholder-shown) .suffix {
+            opacity: 0;
+        }
+
+        .years-container input {
+            padding-left: 12px;
+            padding-right: 64px;
+        }
+
+        .years-container input:placeholder-shown {
+            padding-right: 12px;
+        }
+
+        input:hover, input:focus, select:hover, select:focus {
+            background: #111;
+            outline: none;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            pointer-events: none;
+        }
+
+        .prefix {
+            left: 12px;
+            opacity: 0.5;
+            color: #fff;
+        }
+
+        .suffix {
+            right: 12px;
+            opacity: 0.5;
+            color: #fff;
+            transition: opacity .2s;
+        }
+
+        .rate-container .suffix {
+            opacity: 0.5;
+        }
+
+        .years-container .suffix {
+            opacity: 0;
+        }
+
+        .years-container.filled .suffix {
+            opacity: 0.5;
+        }
+
+        .years-container.filled::placeholder {
+            color: transparent;
+        }
+
+        #rate::placeholder {
+            font-size: 24px;
+            color: #666;
+            opacity: 1;
+        }
+
+        #result {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 24px;
+            height: 70px;
+            padding: 20px 12px;
+            text-align: center;
+            align-self: center;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .row > .input-container {
+            flex: 1;
+            min-width: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="converter">
+            <div class="row">
+                <div class="input-container">
+                    <span class="prefix">$</span>
+                    <input type="text" inputmode="decimal" id="add" placeholder="Contribution" aria-label="Dollar contribution">
+                </div>
+                <div class="input-container">
+                    <select id="freq" aria-label="Purchase frequency" required>
+                        <option value="" disabled selected>Frequency</option>
+                        <option value="daily">daily</option>
+                        <option value="weekly">weekly</option>
+                        <option value="monthly">monthly</option>
+                        <option value="yearly">yearly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-container rate-container">
+                    <input type="text" inputmode="numeric" id="rate" placeholder="Annual Return" aria-label="Annual bitcoin price return percentage">
+                    <span class="suffix">%</span>
+                </div>
+                <div class="input-container years-container">
+                    <input type="number" id="years" placeholder="Years" min="0" step="any" aria-label="Years">
+                    <span class="suffix" id="years-suffix">years</span>
+                </div>
+            </div>
+
+            <input type="text" id="result" placeholder="Projected Amount" aria-label="Projected accumulated BTC" aria-live="polite" readonly>
+        </div>
+    </div>
+
+    <script src="/menu/menu.js"></script>
+
+    <script>
+        const addIn        = document.getElementById('add');
+        const rateIn       = document.getElementById('rate');
+        const yearsIn      = document.getElementById('years');
+        const freqSel      = document.getElementById('freq');
+        const resultIn     = document.getElementById('result');
+        const yearsContainer = document.querySelector('.years-container');
+        const yearsSuffix  = document.getElementById('years-suffix');
+
+        let currentPriceUSD;
+        const periods = { daily: 365, weekly: 52, monthly: 12, yearly: 1 };
+
+        function calculateBTC(contribution, annualRate, years, frequency, price) {
+            const count = Math.floor(years * frequency + 1e-9);
+            if (count === 0) {
+                return 0;
+            }
+            const step = -Math.log1p(annualRate) / frequency;
+            const purchases = step === 0 ? count : Math.expm1(count * step) / Math.expm1(step);
+            return contribution / price * purchases;
+        }
+
+        function calculate() {
+            const contribution = Number(addIn.value.replace(/,/g, ''));
+            const rateText = rateIn.value.trim();
+            const annualRate = Number(rateText) / 100;
+            const yearsText = yearsIn.value.trim();
+            const years = Number(yearsText);
+            const frequency = periods[freqSel.value];
+
+            yearsContainer.classList.toggle('filled', yearsText !== '');
+            yearsSuffix.textContent = years === 1 ? 'year' : 'years';
+            resultIn.value = '';
+            resultIn.placeholder = 'Projected Amount';
+
+            if (!addIn.value.trim() || !rateText || !yearsText || !frequency) {
+                return;
+            }
+            if (!Number.isFinite(contribution) || contribution < 0 ||
+                !Number.isFinite(annualRate) || annualRate < 0 ||
+                !Number.isFinite(years) || years < 0 || !Number.isSafeInteger(Math.floor(years * frequency))) {
+                resultIn.placeholder = 'Check your inputs';
+                return;
+            }
+            if (!currentPriceUSD) {
+                resultIn.placeholder = 'Price unavailable';
+                return;
+            }
+
+            const btc = calculateBTC(contribution, annualRate, years, frequency, currentPriceUSD);
+            resultIn.value = Number.isFinite(btc) ? btc.toLocaleString('en-US', {
+                minimumFractionDigits: 8,
+                maximumFractionDigits: 8
+            }) + ' BTC' : '';
+            if (!Number.isFinite(btc)) {
+                resultIn.placeholder = 'Result too large';
+            }
+        }
+
+        async function loadCurrentPrice(attempt = 1) {
+            try {
+                const response = await fetch('/assets/data/bitcoin-current-data.csv?t=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (!response.ok) {
+                    throw new Error('Price unavailable');
+                }
+                const csv = await response.text();
+                const firstRow = csv.split(/\r?\n/).find(line => line.trim());
+                const price = Number(firstRow?.split(',')[1]?.trim());
+                if (!Number.isFinite(price) || price <= 0) {
+                    throw new Error('Invalid price');
+                }
+                currentPriceUSD = price;
+                calculate();
+            } catch {
+                if (attempt < 3) {
+                    setTimeout(() => loadCurrentPrice(attempt + 1), 800);
+                }
+                calculate();
+            }
+        }
+
+        addIn.addEventListener('input', () => {
+            const value = addIn.value.replace(/,/g, '');
+            if (/^\d+$/.test(value)) {
+                addIn.value = Number(value).toLocaleString('en-US', { maximumFractionDigits: 0 });
+            }
+            calculate();
+        });
+        rateIn.addEventListener('input', () => {
+            rateIn.value = rateIn.value.replace(/[^0-9]/g, '');
+            calculate();
+        });
+        yearsIn.addEventListener('input', calculate);
+        freqSel.addEventListener('change', calculate);
+
+        calculate();
+        loadCurrentPrice();
+    </script>
+</body>
+</html>

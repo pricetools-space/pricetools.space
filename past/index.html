@@ -75,6 +75,21 @@
             text-align: left;
         }
 
+        .amount-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .amount-row > * {
+            min-width: 0;
+        }
+
+        #mode {
+            text-align: center;
+            text-align-last: center;
+        }
+
         .input-container {
             position: relative;
             width: 100%;
@@ -94,7 +109,7 @@
 
         .input-container input {
             padding-left: 32px;
-            padding-right: 72px;
+            padding-right: 12px;
         }
 
         select:hover, select:focus, input:hover, input:focus, button:hover, button:focus {
@@ -107,7 +122,7 @@
         }
 
         .usd-container::before {
-            content: '$';
+            content: attr(data-prefix);
             position: absolute;
             left: 12px;
             top: 50%;
@@ -126,19 +141,24 @@
             transition: opacity .2s;
         }
 
+        .usd-container.at-max input {
+            padding-right: 72px;
+        }
+
         .usd-container.at-max::after {
             opacity: 1;
         }
 
         .result-wrapper {
-            width: 100%;
+            width: min(400px, calc(100vw - 32px));
+            align-self: center;
             min-height: 140px;
             text-align: center;
         }
 
         #result {
             margin-top: 20px;
-            font-size: 20px;
+            font-size: 14pt;
             font-weight: bold;
             color: #fff;
             min-height: 120px;
@@ -167,8 +187,14 @@
                 </select>
                 <select id="year"><option value="" disabled selected>Year</option></select>
             </div>
-            <div class="input-container usd-container" id="usdContainer">
-                <input type="tel" inputmode="decimal" id="usdAmount" placeholder="USD">
+            <div class="amount-row">
+                <select id="mode" aria-label="Amount currency">
+                    <option value="usd" selected>USD</option>
+                    <option value="btc">Bitcoin</option>
+                </select>
+                <div class="input-container usd-container" id="usdContainer" data-prefix="$">
+                    <input type="text" inputmode="decimal" id="usdAmount" placeholder="Amount" aria-label="Amount">
+                </div>
             </div>
             <button onclick="getPrice()">What's it worth now?</button>
             <div class="result-wrapper">
@@ -183,9 +209,14 @@
         let selectedPriceUSD = 0;
         let animationInterval = null;
         const TOTAL_SUPPLY = 21000000;
+        const modeSelect = document.getElementById('mode');
+        const amountIn = document.getElementById('usdAmount');
         const usdContainer = document.getElementById('usdContainer');
 
-        fetch('/assets/data/bitcoin-data.csv').then(r=>r.text()).then(t=>{
+        fetch('/assets/data/bitcoin-data.csv').then(r => {
+            if (!r.ok) throw new Error('Historical prices unavailable');
+            return r.text();
+        }).then(t=>{
             priceMap = {};
             t.split('\n').forEach(l=>{
                 const [d,p]=l.split(','); if(!d||!p) return;
@@ -193,16 +224,25 @@
                 const year = y.length===2?'20'+y:y;
                 const key = `${year}-${m.padStart(2,'0')}-${day.padStart(2,'0')}`;
                 const price = parseFloat(p);
-                if(!isNaN(price)) priceMap[key] = price;
+                if(Number.isFinite(price) && price > 0) priceMap[key] = price;
             });
-        });
+            updatePriceFromDate();
+        }).catch(() => {});
 
-        fetch('/assets/data/bitcoin-current-data.csv').then(r=>r.text()).then(t=>{
+        fetch('/assets/data/bitcoin-current-data.csv').then(r => {
+            if (!r.ok) throw new Error('Current price unavailable');
+            return r.text();
+        }).then(t=>{
             const price = parseFloat(t.split('\n')[0]?.split(',')[1]);
-            if(!isNaN(price) && price>0) currentPriceUSD = price;
-        });
+            if(Number.isFinite(price) && price>0) currentPriceUSD = price;
+        }).catch(() => {});
 
-        function getMaxUSD(){ return selectedPriceUSD ? selectedPriceUSD*TOTAL_SUPPLY*0.999999 : Infinity; }
+        function getMaxUSD() {
+            if (modeSelect.value === 'btc') {
+                return TOTAL_SUPPLY * 0.999999;
+            }
+            return selectedPriceUSD ? selectedPriceUSD * TOTAL_SUPPLY * 0.999999 : Infinity;
+        }
 
         function enforceCap(){
             const input = document.getElementById('usdAmount');
@@ -224,28 +264,34 @@
                 enforceCap();
                 return;
             }
-            const selectedDate = new Date(`${y}-${m}-${d}`);
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate()-1);
-            if(selectedDate > yesterday){
-                selectedPriceUSD = currentPriceUSD;
-            }else{
-                const key = `${y}-${m}-${d}`;
-                selectedPriceUSD = priceMap[key] || currentPriceUSD;
-            }
+            selectedPriceUSD = priceMap?.[`${y}-${m}-${d}`] || 0;
             enforceCap();
         }
 
-        document.getElementById('usdAmount').addEventListener('input',function(){
-            let v = this.value.replace(/[^0-9.]/g,'');
-            if(v.split('.').length>2) v = v.replace(/\.(?=.*\.)/g,'');
-            if(v.includes('.')){
-                const [i,dec] = v.split('.');
-                if(dec && dec.length>2) v = i+'.'+dec.slice(0,2);
-            }
-            const [int] = v.split('.');
-            if(int) v = Number(int).toLocaleString('en-US') + (v.includes('.')?'.'+v.split('.')[1]:'');
-            this.value = v;
+        function formatAmount() {
+            const cleaned = amountIn.value.replace(/[^0-9.]/g, '');
+            const [integer, ...fraction] = cleaned.split('.');
+            const decimals = modeSelect.value === 'btc' ? 8 : 2;
+            const grouped = integer ? Number(integer).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '';
+            amountIn.value = grouped + (fraction.length ? '.' + fraction.join('').slice(0, decimals) : '');
+            enforceCap();
+        }
+
+        function clearResult() {
+            clearInterval(animationInterval);
+            animationInterval = null;
+            document.getElementById('result').textContent = '';
+        }
+
+        amountIn.addEventListener('input', () => {
+            clearResult();
+            formatAmount();
+        });
+
+        modeSelect.addEventListener('change', () => {
+            clearResult();
+            amountIn.value = '';
+            usdContainer.dataset.prefix = modeSelect.value === 'btc' ? '₿' : '$';
             enforceCap();
         });
 
@@ -260,7 +306,10 @@
             document.getElementById('year').appendChild(o);
         }
 
-        ['day','month','year'].forEach(id=>document.getElementById(id).addEventListener('change',updatePriceFromDate));
+        ['day', 'month', 'year'].forEach(id => document.getElementById(id).addEventListener('change', () => {
+            clearResult();
+            updatePriceFromDate();
+        }));
 
         const fmtBig = n=>{
             if(n>=1e21) return '$' + (Math.round((n/1e21)*10)/10) + ' sextillion';
@@ -279,23 +328,21 @@
             return `${months[parseInt(m)]} ${day}${s}, ${y}`;
         };
 
-        function animate(start, end, el, usd, dateStr){
-            const dur=1200, step=50, inc=(end-start)/(dur/step);
-            let cur = start;
+        function animate(start, end, el, amount, dateStr, mode) {
+            const duration = 1200;
+            const started = Date.now();
             const update = () => {
-                const usdStr = fmtBig(usd);
-                const nowStr = fmtBig(cur);
-                el.textContent = usdStr + ' of Bitcoin on ' + dateStr + ' is worth ' + nowStr + ' today.';
-            };
-            animationInterval = setInterval(()=>{
-                cur += inc;
-                if((inc>0&&cur>=end)||(inc<0&&cur<=end)){ 
-                    cur = end; 
+                const progress = Math.min((Date.now() - started) / duration, 1);
+                const value = start + (end - start) * progress;
+                el.textContent = mode === 'btc'
+                    ? '₿' + amount.toLocaleString('en-US', { maximumFractionDigits: 8 }) + ' was worth ' + fmtBig(start) + ' on ' + dateStr + ' and is now worth ' + fmtBig(value) + '.'
+                    : fmtBig(amount) + ' of Bitcoin on ' + dateStr + ' is now worth ' + fmtBig(value) + '.';
+                if (progress === 1) {
                     clearInterval(animationInterval);
                     animationInterval = null;
                 }
-                update();
-            },step);
+            };
+            animationInterval = setInterval(update, 50);
             update();
         }
 
@@ -324,14 +371,24 @@
                 return;
             }
             if (!raw) {
-                res.textContent = 'Select a date and enter USD amount';
+                res.textContent = 'Enter an amount';
                 return;
             }
-            const usd = parseFloat(raw.replace(/,/g, ''));
-            const btc = usd / historicalPrice;
+            const amount = Number(raw.replace(/,/g, ''));
+            if (!Number.isFinite(amount) || amount < 0) {
+                res.textContent = 'Enter a valid amount';
+                return;
+            }
+            if (!Number.isFinite(currentPriceUSD) || currentPriceUSD <= 0) {
+                res.textContent = 'Current price unavailable';
+                return;
+            }
+            const mode = modeSelect.value;
+            const btc = mode === 'btc' ? amount : amount / historicalPrice;
+            const usd = btc * historicalPrice;
             const now = btc * currentPriceUSD;
             const dateStr = fmtDate(m, d, y);
-            animate(usd, now, res, usd, dateStr);
+            animate(usd, now, res, amount, dateStr, mode);
         };
     </script>
 </body>
