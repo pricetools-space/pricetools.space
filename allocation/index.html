@@ -42,7 +42,7 @@
 
         .content {
             width: 100%;
-            max-width: 640px;
+            max-width: 420px;
             margin-block: auto;
             padding: 0 1rem 2rem;
         }
@@ -50,7 +50,7 @@
         .converter {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
         }
 
@@ -64,7 +64,7 @@
             color: #fff;
             border: 1px solid #555;
             border-radius: 10px;
-            font-size: 20px;
+            font-size: 24px;
             padding: 20px 12px;
             -webkit-appearance: none;
             appearance: none;
@@ -80,15 +80,14 @@
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 20px;
+            font-size: 24px;
             pointer-events: none;
-            opacity: 0.5;
         }
 
         .row {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .row > div {
@@ -100,36 +99,24 @@
         }
 
         .pct-container {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             border: 1px solid #555;
             border-radius: 10px;
-            font-size: 20px;
-            padding: 20px 12px;
+            font-size: 24px;
+            padding: 20px 36px 20px 12px;
             color: #fff;
         }
 
-        @media (max-width: 480px) {
-            .row {
-                gap: 8px;
-            }
-
-            input, .prefix, .pct-container {
-                font-size: 18px;
-            }
-
-            input, .pct-container {
-                padding-inline: 8px;
-            }
-
-            .prefix {
-                left: 8px;
-            }
-
-            .amt-container input {
-                padding-left: 24px;
-            }
+        .pct-container::after {
+            content: '%';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
         }
 
         .result-wrapper {
@@ -155,44 +142,32 @@
     <div class="content">
         <div class="converter">
             <div class="row">
-                <div class="input-container name-container">
-                    <input type="text" class="alloc-name" placeholder="Stack 1" aria-label="Stack 1 name">
-                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
                 </div>
-                <div class="pct-container alloc-pct">0%</div>
+                <div class="pct-container"><span class="alloc-pct">0</span></div>
             </div>
             <div class="row">
-                <div class="input-container name-container">
-                    <input type="text" class="alloc-name" placeholder="Stack 2" aria-label="Stack 2 name">
-                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
                 </div>
-                <div class="pct-container alloc-pct">0%</div>
+                <div class="pct-container"><span class="alloc-pct">0</span></div>
             </div>
             <div class="row">
-                <div class="input-container name-container">
-                    <input type="text" class="alloc-name" placeholder="Stack 3" aria-label="Stack 3 name">
-                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
                 </div>
-                <div class="pct-container alloc-pct">0%</div>
+                <div class="pct-container"><span class="alloc-pct">0</span></div>
             </div>
             <div class="row">
-                <div class="input-container name-container">
-                    <input type="text" class="alloc-name" placeholder="Stack 4" aria-label="Stack 4 name">
-                </div>
                 <div class="input-container amt-container">
                     <span class="prefix">₿</span>
                     <input type="tel" inputmode="decimal" class="alloc-amt" placeholder="0">
                 </div>
-                <div class="pct-container alloc-pct">0%</div>
+                <div class="pct-container"><span class="alloc-pct">0</span></div>
             </div>
             <div class="result-wrapper">
                 <div id="total"></div>
@@ -222,7 +197,7 @@
             totalEl.textContent = hasEntry ? 'Total: ₿' + fmtBtc(total) : '';
             amts.forEach((amt, i) => {
                 const pct = total > 0 ? (amt / total) * 100 : 0;
-                pctEls[i].textContent = fmtPct(pct) + '%';
+                pctEls[i].textContent = fmtPct(pct);
             });
         }
 
